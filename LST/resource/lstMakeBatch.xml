@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Resource xmlns="http://nrg.wustl.edu/pipeline">
+    <name>lstMakeBatch.py</name>
+    <location>LST/resource</location>
+    <type>Executable</type>
+    <description>Generate LST batch .m file to be launch in spm8 (standalone)</description>
+    <estimated_time>00:30:00</estimated_time>
+    <input>
+        <argument id="workdir">
+        	<name>w</name>
+        	<description>workdir</description>
+        </argument>
+        <argument id="t1">
+        	<name>t</name>
+		<description>T1 nifti file path</description>
+        </argument>
+	<argument id="flair">
+        	<name>f</name>
+		<description>FLAIR nifti file path</description>
+        </argument>
+    </input>
+</Resource>

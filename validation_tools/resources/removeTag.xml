@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Resource xmlns="http://nrg.wustl.edu/pipeline">
+    <name>removeTag.py</name>
+    <location>validation_tools/resources</location>
+    <type>Executable</type>
+    <description>Remove undesirable xml tags</description>
+    <estimated_time>00:30:00</estimated_time>
+    <input>
+        <argument id="file">
+        	<name>f</name>
+        	<description>XML file</description>
+        </argument>
+        <argument id="tag">
+        	<name>t</name>
+		<description>XML tag number</description>
+        </argument>
+    </input>
+</Resource>

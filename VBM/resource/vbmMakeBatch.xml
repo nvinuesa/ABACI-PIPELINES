@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Resource xmlns="http://nrg.wustl.edu/pipeline">
+	<name>run_vbmMakeBatch.sh /usr/local/MATLAB/MCR/v7141</name>
+	<location>VBM/resource/vbmMakeBatch</location>
+    	<type>Executable</type>
+	<description>Generates batch file for SPM</description>
+    	<estimated_time>00:00:01</estimated_time>
+	<input>
+		<argument id="workdir" prefix="">
+			<description>Path to workdir</description>
+		</argument>
+		<argument id="input" prefix="">
+			<description>Path to input NIFTI file</description>
+		</argument>
+		<argument id="template" prefix="">
+			<description>Path to template file used for SPM segmentation</description>
+		</argument>
+	</input>
+</Resource>

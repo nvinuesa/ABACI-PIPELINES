@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pip:Resource xmlns:pip="http://nrg.wustl.edu/pipeline">
+	<pip:name>gzip</pip:name>
+	<pip:location>/bin</pip:location> 
+	<pip:type>Executable</pip:type>
+	<pip:description>GZip a dir/file</pip:description>
+	<pip:estimated_time>00:00:01</pip:estimated_time>
+	<pip:input>
+		<pip:argument id="recursive">
+			<pip:name>r</pip:name>
+			<pip:description>Recursive</pip:description>
+		</pip:argument>
+		<pip:argument id="archive">
+			<pip:description>Archive name</pip:description>
+		</pip:argument>
+		<pip:argument id="folder">
+			<pip:description>Dir/file to zip</pip:description>
+		</pip:argument>
+	</pip:input>
+</pip:Resource>

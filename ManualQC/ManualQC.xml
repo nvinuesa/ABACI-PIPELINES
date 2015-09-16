@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Pipeline xmlns="http://nrg.wustl.edu/pipeline" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://nrg.wustl.edu/pipeline ..\schema\pipeline.xsd"  xmlns:fileUtils="http://www.xnat.org/java/org.nrg.imagingtools.utils.FileUtils">
+        <name>ManualQC</name>
+        <!--Should be  Name of the pipeline XML file -->
+        <location>@PIPELINE_DIR_PATH@/ManualQC</location>
+        <!-- Filesystem path to the pipeline XML -->
+        <description>Manual Quality Control</description>
+        <documentation>
+           <authors>
+                <author>
+                        <lastname>Vinuesa</lastname>
+                        <firstname>Nicolas</firstname>
+                </author>
+           </authors>
+                <version>1.0</version>
+                <input-parameters>
+                        <parameter>
+                                <name>xnat_id</name>
+                                <values><schemalink>xnat:imageSessionData/ID</schemalink></values>
+                                <description>The XNAT ID (Accession Number) of the session</description>
+                        </parameter>
+                        <parameter>
+                                <name>sessionId</name>
+                                <values><schemalink>xnat:imageSessionData/label</schemalink></values>
+                                <description>The session id  of the session</description>
+                        </parameter>
+                        <parameter>
+                                <name>project</name>
+                                <values><schemalink>xnat:imageSessionData/project</schemalink></values>
+                                <description>Project ID</description>
+                        </parameter>
+                        <parameter>
+                                <name>subject</name>
+                                <values><schemalink>xnat:imageSessionData/subject_ID</schemalink></values>
+                                <description>Subject ID</description> 
+                        </parameter>
+                        <parameter>
+		               	<name>Position_T1</name>
+		               	<values>
+		               		<csv>0,1,2,3,4,5</csv></values>
+		               	<description>Position for QC</description>
+		        </parameter>
+		        <parameter>
+		               	<name>Quality_T1</name>
+		               	<values><csv>0,1</csv></values>
+		               	<description>Boolean QC value</description>
+		        </parameter>
+		        <parameter>
+		               	<name>Contrast_T1</name>
+		               	<values>
+		               		<csv>0,1,2,3,4,5</csv></values>
+		               	<description>Contrast for QC</description>
+		        </parameter>
+		        <parameter>
+		               	<name>Hypersignaux_SB_T1</name>
+		               	<values>
+		               		<csv>0,1,2,3,4,5</csv></values>
+		               	<description>Hypersignaux for QC</description>
+		        </parameter>
+		        <parameter>
+		               	<name>Hyposignaux_SB_T1</name>
+		               	<values>
+		               		<csv>0,1,2,3,4,5</csv></values>
+		               	<description>Hyposignaux for QC</description>
+		        </parameter> 
+		        <parameter>
+		               	<name>Comments_T1</name>
+					<values><csv>Neant</csv></values>
+		               	<description>Text comments for QC</description>
+		        </parameter>
+                        <parameter>
+		               	<name>Position_FLAIR</name>
+		               	<values>
+		               		<csv>0,1,2,3,4,5</csv></values>
+		               	<description>Position for QC</description>
+		        </parameter>
+		        <parameter>
+		               	<name>Quality_FLAIR</name>
+		               	<values><csv>0,1</csv></values>
+		               	<description>Boolean QC value</description>
+		        </parameter>
+		        <parameter>
+		               	<name>Contrast_FLAIR</name>
+		               	<values>
+		               		<csv>0,1,2,3,4,5</csv></values>
+		               	<description>Contrast for QC</description>
+		        </parameter>
+		        <parameter>
+		               	<name>Hypersignaux_SB_FLAIR</name>
+		               	<values>
+		               		<csv>0,1,2,3,4,5</csv></values>
+		               	<description>Hypersignaux for QC</description>
+		        </parameter>
+		        <parameter>
+		               	<name>Hyposignaux_SB_FLAIR</name>
+		               	<values>
+		               		<csv>0,1,2,3,4,5</csv></values>
+		               	<description>Hyposignaux for QC</description>
+		        </parameter> 
+		        <parameter>
+		               	<name>Comments_FLAIR</name>
+					<values><csv>Neant</csv></values>
+		               	<description>Text comments for QC</description>
+		        </parameter>
+                        <parameter>
+		               	<name>Position_T2</name>
+		               	<values>
+		               		<csv>0,1,2,3,4,5</csv></values>
+		               	<description>Position for QC</description>
+		        </parameter>
+		        <parameter>
+		               	<name>Quality_T2</name>
+		               	<values><csv>0,1</csv></values>
+		               	<description>Boolean QC value</description>
+		        </parameter>
+		        <parameter>
+		               	<name>Contrast_T2</name>
+		               	<values>
+		               		<csv>0,1,2,3,4,5</csv></values>
+		               	<description>Contrast for QC</description>
+		        </parameter>
+		        <parameter>
+		               	<name>Hypersignaux_SB_T2</name>
+		               	<values>
+		               		<csv>0,1,2,3,4,5</csv></values>
+		               	<description>Hypersignaux for QC</description>
+		        </parameter>
+		        <parameter>
+		               	<name>Hyposignaux_SB_T2</name>
+		               	<values>
+		               		<csv>0,1,2,3,4,5</csv></values>
+		               	<description>Hyposignaux for QC</description>
+		        </parameter> 
+		        <parameter>
+		               	<name>Comments_T2</name>
+					<values><csv>Neant</csv></values>
+		               	<description>Text comments for QC</description>
+		        </parameter>
+		</input-parameters>
+        </documentation>
+	<xnatInfo appliesTo="xnat:mrSessionData">
+		<generatesElements>
+			<element>manualqc:manualqcAssessorData</element>
+		</generatesElements>
+    	</xnatInfo>
+        <outputFileNamePrefix>^concat(/Pipeline/parameters/parameter[name='workdir']/values/unique/text(),'/manualqc')^</outputFileNamePrefix>
+        <!-- <loop id="series" xpath="^/Pipeline/parameters/parameter[name='scanids']/values/list^"/> -->
+	<parameters>
+		<parameter>
+                        <name>workdir</name>
+                        <values>
+                                <unique>^concat(/Pipeline/parameters/parameter[name='builddir']/values/unique/text(),'/',/Pipeline/parameters/parameter[name='sessionId']/values/unique/text())^</unique>
+                        </values>
+                </parameter>
+        </parameters>
+        <steps>
+		<step id="1" description="create the assessor data">
+                        <resource name="curl" location="commandlineTools">
+                            <argument id="userpassword">
+                                <value>^concat(/Pipeline/parameters/parameter[name='user']/values/unique/text(),':',/Pipeline/parameters/parameter[name='pwd']/values/unique/text())^</value>
+                            </argument>
+                            <argument id="options">
+                                <value>-X PUT</value>
+                            </argument>
+                            <argument id="url">
+                                <value>^concat('"',/Pipeline/parameters/parameter[name='host']/values/unique/text(),'data/archive/projects/',/Pipeline/parameters/parameter[name='project']/values/unique/text(),'/subjects/',/Pipeline/parameters/parameter[name='subject']/values/unique/text(),'/experiments/',/Pipeline/parameters/parameter[name='xnat_id']/values/unique/text(),'/assessors/',/Pipeline/parameters/parameter[name='xnat_id']/values/unique/text(),'_ManualQC?xsiType=manualqc:manualqcAssessorData&amp;manualqc:manualqcAssessorData/Position_T1=',/Pipeline/parameters/parameter[name='Position_T1']/values/unique/text(),'&amp;manualqc:manualqcAssessorData/Quality_T1=',/Pipeline/parameters/parameter[name='Quality_T1']/values/unique/text(),'&amp;manualqc:manualqcAssessorData/Contrast_T1=',/Pipeline/parameters/parameter[name='Contrast_T1']/values/unique/text(),'&amp;manualqc:manualqcAssessorData/Hypersignaux_SB_T1=',/Pipeline/parameters/parameter[name='Hypersignaux_SB_T1']/values/unique/text(),'&amp;manualqc:manualqcAssessorData/Hyposignaux_SB_T1=',/Pipeline/parameters/parameter[name='Hyposignaux_SB_T1']/values/unique/text(),'&amp;manualqc:manualqcAssessorData/Comments_T1=N&amp;manualqc:manualqcAssessorData/Position_FLAIR=',/Pipeline/parameters/parameter[name='Position_FLAIR']/values/unique/text(),'&amp;manualqc:manualqcAssessorData/Quality_FLAIR=',/Pipeline/parameters/parameter[name='Quality_FLAIR']/values/unique/text(),'&amp;manualqc:manualqcAssessorData/Contrast_FLAIR=',/Pipeline/parameters/parameter[name='Contrast_FLAIR']/values/unique/text(),'&amp;manualqc:manualqcAssessorData/Hypersignaux_SB_FLAIR=',/Pipeline/parameters/parameter[name='Hypersignaux_SB_FLAIR']/values/unique/text(),'&amp;manualqc:manualqcAssessorData/Hyposignaux_SB_FLAIR=',/Pipeline/parameters/parameter[name='Hyposignaux_SB_FLAIR']/values/unique/text(),'&amp;manualqc:manualqcAssessorData/Comments_FLAIR=N&amp;manualqc:manualqcAssessorData/Position_T2=',/Pipeline/parameters/parameter[name='Position_T2']/values/unique/text(),'&amp;manualqc:manualqcAssessorData/Quality_T2=',/Pipeline/parameters/parameter[name='Quality_T2']/values/unique/text(),'&amp;manualqc:manualqcAssessorData/Contrast_T2=',/Pipeline/parameters/parameter[name='Contrast_T2']/values/unique/text(),'&amp;manualqc:manualqcAssessorData/Hypersignaux_SB_T2=',/Pipeline/parameters/parameter[name='Hypersignaux_SB_T2']/values/unique/text(),'&amp;manualqc:manualqcAssessorData/Hyposignaux_SB_T2=',/Pipeline/parameters/parameter[name='Hyposignaux_SB_T2']/values/unique/text(),'&amp;manualqc:manualqcAssessorData/Comments_T2=N"')^</value>
+                            </argument>                           
+                        </resource> 
+                </step>
+		<step id="CREATE_ASSESSOR" description="Generate ManualQC assessor XML, python" workdirectory="^/Pipeline/parameters/parameter[name='workdir']/values/unique/text()^"  >
+            		<resource name="mqcAssessor" location="pipelines/ManualQC/resources">
+                		<argument id="workdir">
+                    			<value>^/Pipeline/parameters/parameter[name='workdir']/values/unique/text()^</value>
+				</argument>
+				<argument id="1">
+				    	<value>^concat('"',/Pipeline/parameters/parameter[name='Comments_T1']/values/unique/text(),'"')^</value>
+				</argument>
+				<argument id="2">
+				    	<value>^concat('"',/Pipeline/parameters/parameter[name='Comments_FLAIR']/values/unique/text(),'"')^</value>
+				</argument>
+				<argument id="3">
+				    	<value>^concat('"',/Pipeline/parameters/parameter[name='Comments_T2']/values/unique/text(),'"')^</value>
+				</argument>
+            		</resource>
+        	</step>
+		<step id="PUT_ASSESSOR" description="Modify the assessor with an xml file" workdirectory="^/Pipeline/parameters/parameter[name='workdir']/values/unique/text()^">
+            		<resource name="XnatDataClient" location="xnat_tools">
+				<argument id="user">
+				    <value>^/Pipeline/parameters/parameter[name='user']/values/unique/text()^</value>
+				</argument>
+				<argument id="password">
+				    <value>^/Pipeline/parameters/parameter[name='pwd']/values/unique/text()^</value>
+				</argument>
+				<argument id="method">
+				    <value>PUT</value>
+				</argument>
+				<argument id="remote">
+				    <value>^concat('"',/Pipeline/parameters/parameter[name='host']/values/unique/text(),'data/archive/projects/',/Pipeline/parameters/parameter[name='project']/values/unique/text(),'/subjects/',/Pipeline/parameters/parameter[name='subject']/values/unique/text(),'/experiments/',/Pipeline/parameters/parameter[name='xnat_id']/values/unique/text(),'/assessors/',/Pipeline/parameters/parameter[name='xnat_id']/values/unique/text(),'_ManualQC"')^</value>
+				</argument>
+				<argument id="infile">
+				    <value>mqc.xml</value>
+				</argument>
+            		</resource>
+        	</step>
+        </steps>
+</Pipeline>

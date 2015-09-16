@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Resource xmlns="http://nrg.wustl.edu/pipeline">
+	<name>run_spm8.sh</name>
+	<location>/usr/local/MATLAB/spm8</location>
+    	<type>Executable</type>
+	<description>Runs SPM8</description>
+    	<estimated_time>00:00:01</estimated_time>
+	<input>
+		<argument id="mcr">
+			<description>Path to MATLABs MCR</description>
+		</argument>
+		<argument id="args">
+			<description>Input arguments (e.g. "batch ...")</description>
+		</argument>
+	</input>
+</Resource>

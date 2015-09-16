@@ -1,0 +1,725 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Pipeline xmlns="http://nrg.wustl.edu/pipeline" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://nrg.wustl.edu/pipeline ..\..\schema\pipeline.xsd" xmlns:ext="org.nrg.validate.utils.ProvenanceUtils" > <!-- xmlns:nrgString="http://www.xnat.org/java/org.nrg.pipeline.utils.StringUtils" xmlns:fileUtils="http://www.xnat.org/java/org.nrg.imagingtools.utils.FileUtils"> -->
+    <name>Freesurfer_5.3</name>
+    <location>Freesurfer</location>
+    <description>Run Freesurfer v5.3</description>
+    <resourceRequirements>
+        <property name="DRMAA_JobTemplate_JobCategory">nrglab_subordinate_q</property>
+    </resourceRequirements>
+    <documentation>
+        <website>http://surfer.nmr.mgh.harvard.edu/</website>
+        <authors>
+            <author>
+                <lastname>Dale</lastname>
+                <firstname>AM</firstname>
+            </author>
+            <author>
+                <lastname>Fischl</lastname>
+                <firstname>Bruce</firstname>
+            </author>
+            <author>
+                <lastname>Flavin</lastname>
+                <firstname>John</firstname>
+                <contact>
+                    <email>flavinj@mir.wustl.edu</email>
+                </contact>
+            </author>
+        </authors>
+        <publications>
+            <publication>Dale, A.M., Fischl, B., Sereno, M.I., 1999. Cortical surface-based analysis. I. Segmentation and surface reconstruction. Neuroimage 9, 179-194.</publication>
+        </publications>
+        <version>1</version>
+        <input-parameters>
+            <parameter>
+                <name>scan_ids</name>
+                <values>
+                    <schemalink>xnat:imageSessionData/scans/scan/ID</schemalink>
+                </values>
+                <description>T1 scan IDs</description>
+            </parameter>
+            <parameter>
+                <name>format</name>
+                <values>
+                    <csv>DICOM</csv>
+                </values>
+                <description>Are input scans DICOM or NIFTI?</description>
+            </parameter>
+            <parameter>
+                <name>environment</name>
+                <values>
+                    <csv>LOCAL</csv>
+                </values>
+                <description>Set to CHPC to run this job on the supercomputer, or LOCAL to run on the NRG cluster</description>
+            </parameter>
+            <parameter>
+                <name>recon_all_args</name>
+                <values>
+                    <csv>-qcache -all -hippo-subfields</csv>
+                </values>
+                <description>Pass these arguments to recon-all</description>
+            </parameter>
+            <parameter>
+                <name>email_csv_in</name>
+                <values>
+                    <csv>cnda-ops@nrg.wustl.edu</csv>
+                </values>
+                <description>CSV of email addresses to notify</description>
+            </parameter>
+            <parameter>
+                <name>use_manual_qc</name>
+                <values>
+                    <csv>0,1</csv>
+                </values>
+                <description>Set to 1 if using a manual QC to select scans, or 0 if not</description>
+            </parameter>
+            <parameter>
+                <name>qc_rating_scale</name>
+                <values>
+                    <csv>''</csv>
+                </values>
+                <description>If using a manual QC, this flag marks the "best" scan</description>
+            </parameter>
+            <parameter>
+                <name>qc_rating</name>
+                <values>
+                    <csv>1</csv>
+                </values>
+                <description>If using a manual QC, this is the value of the "best" scan</description>
+            </parameter>
+            <parameter>
+                <name>T2_ids</name>
+                <description>T2 scan IDs</description>
+            </parameter>
+            <parameter>
+                <name>FLAIR_ids</name>
+                <description>FLAIR scan IDs</description>
+            </parameter>
+        </input-parameters>
+    </documentation>
+    <outputFileNamePrefix>^concat(/Pipeline/parameters/parameter[name='logdir']/values/unique/text(),'/',/Pipeline/parameters/parameter[name='label']/values/unique/text())^</outputFileNamePrefix>
+    <loop id="T1" xpath="^/Pipeline/parameters/parameter[name='scan_ids']/values/list^"/>
+    <loop id="T2" xpath="^/Pipeline/parameters/parameter[name='T2_ids']/values/list^"/>
+    <loop id="FLAIR" xpath="^/Pipeline/parameters/parameter[name='FLAIR_ids']/values/list^"/>
+    <!-- <loop id="email" xpath="^/Pipeline/parameters/parameter[name='email_list']/values/list^"/> -->
+    <parameters>
+        <parameter>
+            <name>workdir</name>
+            <values>
+                <unique>^concat(/Pipeline/parameters/parameter[name='builddir']/values/unique/text(),'/',/Pipeline/parameters/parameter[name='label']/values/unique/text())^</unique>
+            </values>
+        </parameter>
+        <parameter>
+            <name>logdir</name>
+            <values>
+                <unique>^concat(/Pipeline/parameters/parameter[name='workdir']/values/unique/text(),'/LOGS')^</unique>
+            </values>
+        </parameter>
+        <parameter>
+            <name>rawdir</name>
+            <values>
+                <unique>^concat(/Pipeline/parameters/parameter[name='workdir']/values/unique/text(),'/RAW')^</unique>
+            </values>
+        </parameter>
+        <parameter>
+            <name>freesurferdir</name>
+            <values>
+                <unique>^concat(/Pipeline/parameters/parameter[name='workdir']/values/unique/text(),'/PROCESSED')^</unique>
+            </values>
+        </parameter>
+        <parameter>
+            <name>freesurfer_subjectdir</name>
+            <values>
+                <unique>^concat(/Pipeline/parameters/parameter[name='freesurferdir']/values/unique/text(),'/',/Pipeline/parameters/parameter[name='label']/values/unique/text())^</unique>
+            </values>
+        </parameter>
+        <parameter>
+            <name>freesurfer_tempdir</name>
+            <values>
+                <unique>^concat(/Pipeline/parameters/parameter[name='freesurferdir']/values/unique/text(),'/temp')^</unique>
+            </values>
+        </parameter>
+        <parameter>
+            <name>tempdir</name>
+            <values>
+                <unique>^concat(/Pipeline/parameters/parameter[name='workdir']/values/unique/text(),'/temp')^</unique>
+            </values>
+        </parameter>
+        <parameter>
+            <name>cnda_build_root</name>
+            <values>
+                <unique>/data/CNDA/build</unique>
+            </values>
+            <description>Root of CNDA build space</description>
+        </parameter>
+        <parameter>
+            <name>chpc_build_root</name>
+            <values>
+                <unique>/data/CNDA/build_chpc</unique>
+            </values>
+            <description>Root of shared CHPC build space</description>
+        </parameter>
+        <parameter>
+            <name>chpc_ssh_login</name>
+            <values>
+                <unique>capweb@login1.chpc.wustl.edu</unique>
+            </values>
+            <description>SSH login details for CHPC</description>
+        </parameter>
+        <parameter>
+            <name>chpc_ssh_identity_file</name>
+            <values>
+                <unique>/data/CNDA/home/.ssh/id_rsa_chpc</unique>
+            </values>
+            <description>SSH identity file for login to CHPC</description>
+        </parameter>
+        <parameter>
+            <name>datestamp</name>
+            <values>
+                <unique>^if(boolean(/Pipeline/parameters/parameter[name='use_datestamp'])) then /Pipeline/parameters/parameter[name='use_datestamp']/values/unique/text() else concat(translate(ext:GetDate(),'-',''),translate(ext:GetTime(),':',''))^</unique>
+            </values>
+        </parameter>
+        <parameter>
+            <name>relaunch</name>
+            <values>
+                <unique>^if(boolean(/Pipeline/parameters/parameter[name='relaunch_in'])) then /Pipeline/parameters/parameter[name='relaunch_in']/values/unique/text() else 'false'^</unique>
+            </values>
+            <description>Is this a relaunch?</description>
+        </parameter>
+        <parameter>
+            <name>assessor_id</name>
+            <values>
+                <unique>^if(/Pipeline/parameters/parameter[name='relaunch']/values/unique/text()='true' and boolean(/Pipeline/parameters/parameter[name='assessor_id_in'])) then /Pipeline/parameters/parameter[name='assessor_id_in']/values/unique/text() else concat(/Pipeline/parameters/parameter[name='id']/values/unique/text(),'_freesurfer_',/Pipeline/parameters/parameter[name='datestamp']/values/unique/text())^</unique>
+            </values>
+        </parameter>
+        <parameter>
+            <name>email_subject</name>
+            <values>
+                <unique>^concat(/Pipeline/parameters/parameter[name='xnatserver']/values/unique/text(), ' update: Freesurfer 5.3 finished for ', /Pipeline/parameters/parameter[name='label']/values/unique/text())^</unique>
+            </values>
+            <description>Subject of success email</description>
+        </parameter>
+        <parameter>
+            <name>email_body</name>
+            <values>
+                <unique>^concat('&lt;p&gt;Freesurfer 5.3 has finished processing for session ',/Pipeline/parameters/parameter[name='label']/values/unique/text(),'. &lt;br/&gt;Details are available on the assessor page at &lt;a href="',/Pipeline/parameters/parameter[name='host']/values/unique/text(),'data/experiments/',/Pipeline/parameters/parameter[name='assessor_id']/values/unique/text(),'?format=html"&gt; the ',/Pipeline/parameters/parameter[name='xnatserver']/values/unique/text(),' website&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;Snapshot generation is in progress. You will be notified when they are available.&lt;/p&gt;&lt;br&gt;',/Pipeline/parameters/parameter[name='xnatserver']/values/unique/text(),' Team.')^</unique>
+            </values>
+            <description>Body of success email</description>
+        </parameter>
+        <parameter>
+            <name>email_csv</name>
+            <values>
+                <unique>^if(boolean(/Pipeline/parameters/parameter[name='email_csv_in'])) then /Pipeline/parameters/parameter[name='email_csv_in']/values/unique/text() else concat(/Pipeline/parameters/parameter[name='useremail']/values/unique/text(),'cnda-ops@nrg.wustl.edu')^</unique>
+            </values>
+            <description>CSV of email addresses to notify</description>
+        </parameter>
+        <parameter>
+            <name>paramsFile</name>
+            <values>
+                <unique>^concat(/Pipeline/parameters/parameter[name='logdir']/values/unique/text(),'/',/Pipeline/parameters/parameter[name='label']/values/unique/text(),'.bashparams')^</unique>
+            </values>
+        </parameter>
+    </parameters>
+    <steps>
+        <step id="VALIDATE_RELAUNCH" description="If this is a relaunch, check that we were passed an assessor ID" precondition="^if(/Pipeline/parameters/parameter[name='relaunch']/values/unique/text()='true') then not(boolean(/Pipeline/parameters/parameter[name='assessor_id_in'])) else false()^">
+            <resource name="Fail" location="pipeline-tools">
+                <argument id="errstring">
+                    <value>Pipeline failed.</value>
+                </argument>
+                <argument id="errstring">
+                    <value>I was instructed to relaunch a Freesurfer, but I was not given a Freesurfer assessor ID.</value>
+                </argument>
+            </resource>
+        </step>
+        <step id="PARAMS_FILE" description="Dump the pipeline params to a bash params file">
+            <resource name="ParamsToCshParams" location="xnat_tools/resources">
+                <argument id="outfile">
+                    <value>^/Pipeline/parameters/parameter[name='paramsFile']/values/unique/text()^</value>
+                </argument>
+                <argument id="skip">
+                    <value>pwd,host,user,u</value>
+                </argument>
+                <argument id="script">
+                    <value>/data/CNDA/pipeline/catalog/pipeline-tools/resources/ParamsToBashParams.xsl</value>
+                </argument>
+            </resource>
+        </step>
+        <step id="MKDIR_FS" description="Make Freesurfer directories">
+            <resource name="mkdir" location="commandlineTools">
+                <argument id="p"/>
+                <argument id="dirname">
+                    <value>^/Pipeline/parameters/parameter[name='freesurferdir']/values/unique/text()^</value>
+                </argument>
+            </resource>
+            <resource name="mkdir" location="commandlineTools">
+                <argument id="p"/>
+                <argument id="dirname">
+                    <value>^/Pipeline/parameters/parameter[name='tempdir']/values/unique/text()^</value>
+                </argument>
+            </resource>
+        </step>
+        <!-- PREP FOR NON-RELAUNCH -->
+        <step id="MKDIR_RAW" description="Make RAW directory" precondition="^/Pipeline/parameters/parameter[name='relaunch']/values/unique/text()='false'^">
+            <resource name="mkdir" location="commandlineTools">
+                <argument id="p"/>
+                <argument id="dirname">
+                    <value>^concat(/Pipeline/parameters/parameter[name='rawdir']/values/unique/text(),'/',PIPELINE_LOOPON(T1))^</value>
+                </argument>
+            </resource>
+            <resource name="mkdir" location="commandlineTools">
+                <argument id="p"/>
+                <argument id="dirname">
+                    <value>^concat(/Pipeline/parameters/parameter[name='rawdir']/values/unique/text(),'/',PIPELINE_LOOPON(T2))^</value>
+                </argument>
+            </resource>
+            <resource name="mkdir" location="commandlineTools">
+                <argument id="p"/>
+                <argument id="dirname">
+                    <value>^concat(/Pipeline/parameters/parameter[name='rawdir']/values/unique/text(),'/',PIPELINE_LOOPON(FLAIR))^</value>
+                </argument>
+            </resource>
+        </step>
+        <step id="GET_T1S" description="Download scan T1s" workdirectory="^concat(/Pipeline/parameters/parameter[name='rawdir']/values/unique/text(),'/',PIPELINE_LOOPON(T1))^" precondition="^/Pipeline/parameters/parameter[name='relaunch']/values/unique/text()='false'^">
+            <resource name="XnatDataClient" location="xnat_tools">
+                <argument id="user">
+                    <value>^/Pipeline/parameters/parameter[name='user']/values/unique/text()^</value>
+                </argument>
+                <argument id="password">
+                    <value>^/Pipeline/parameters/parameter[name='pwd']/values/unique/text()^</value>
+                </argument>
+                <argument id="absolutePath"/>
+                <argument id="batch" />
+                <argument id="method">
+                    <value>GET</value>
+                </argument>
+                <argument id="remote">
+                    <value>^concat('"',/Pipeline/parameters/parameter[name='host']/values/unique/text(),'data/experiments/',/Pipeline/parameters/parameter[name='id']/values/unique/text(),'/scans/',PIPELINE_LOOPON(T1),'/resources/',/Pipeline/parameters/parameter[name='format']/values/unique/text(),'/files"')^</value>
+                </argument>
+            </resource>
+        </step>
+        <step id="GET_T2S" description="Download scan T2s" workdirectory="^concat(/Pipeline/parameters/parameter[name='rawdir']/values/unique/text(),'/',PIPELINE_LOOPON(T2))^" precondition="^/Pipeline/parameters/parameter[name='relaunch']/values/unique/text()='false'^">
+            <resource name="XnatDataClient" location="xnat_tools">
+                <argument id="user">
+                    <value>^/Pipeline/parameters/parameter[name='user']/values/unique/text()^</value>
+                </argument>
+                <argument id="password">
+                    <value>^/Pipeline/parameters/parameter[name='pwd']/values/unique/text()^</value>
+                </argument>
+                <argument id="absolutePath"/>
+                <argument id="batch" />
+                <argument id="method">
+                    <value>GET</value>
+                </argument>
+                <argument id="remote">
+                    <value>^concat('"',/Pipeline/parameters/parameter[name='host']/values/unique/text(),'data/experiments/',/Pipeline/parameters/parameter[name='id']/values/unique/text(),'/scans/',PIPELINE_LOOPON(T2),'/resources/',/Pipeline/parameters/parameter[name='format']/values/unique/text(),'/files"')^</value>
+                </argument>
+            </resource>
+        </step>
+        <step id="GET_FLAIRS" description="Download scan FLAIRs" workdirectory="^concat(/Pipeline/parameters/parameter[name='rawdir']/values/unique/text(),'/',PIPELINE_LOOPON(FLAIR))^" precondition="^/Pipeline/parameters/parameter[name='relaunch']/values/unique/text()='false'^">
+            <resource name="XnatDataClient" location="xnat_tools">
+                <argument id="user">
+                    <value>^/Pipeline/parameters/parameter[name='user']/values/unique/text()^</value>
+                </argument>
+                <argument id="password">
+                    <value>^/Pipeline/parameters/parameter[name='pwd']/values/unique/text()^</value>
+                </argument>
+                <argument id="absolutePath"/>
+                <argument id="batch" />
+                <argument id="method">
+                    <value>GET</value>
+                </argument>
+                <argument id="remote">
+                    <value>^concat('"',/Pipeline/parameters/parameter[name='host']/values/unique/text(),'data/experiments/',/Pipeline/parameters/parameter[name='id']/values/unique/text(),'/scans/',PIPELINE_LOOPON(FLAIR),'/resources/',/Pipeline/parameters/parameter[name='format']/values/unique/text(),'/files"')^</value>
+                </argument>
+            </resource>
+        </step>
+        <!-- END PREP FOR NON-RELAUNCH -->
+        <!-- PREP FOR RELAUNCH -->
+        <step id="GET_FS" description="Get FreeSurfer data" workdirectory="^/Pipeline/parameters/parameter[name='freesurferdir']/values/unique/text()^" precondition="^/Pipeline/parameters/parameter[name='relaunch']/values/unique/text()='true'^">
+            <resource name="XnatDataClient" location="xnat_tools">
+                <argument id="user">
+                    <value>^/Pipeline/parameters/parameter[name='user']/values/unique/text()^</value>
+                </argument>
+                <argument id="password">
+                    <value>^/Pipeline/parameters/parameter[name='pwd']/values/unique/text()^</value>
+                </argument>
+                <argument id="method">
+                    <value>GET</value>
+                </argument>
+                <!-- We can't use batch copy mode because the timestamps would change. FS uses the timestamps to see what has been updated. -->
+                <argument id="remote">
+                    <value>^concat('"',/Pipeline/parameters/parameter[name='host']/values/unique/text(),'data/experiments/',/Pipeline/parameters/parameter[name='id']/values/unique/text(),'/assessors/',/Pipeline/parameters/parameter[name='assessor_id']/values/unique/text(),'/resources/DATA/files?format=zip&amp;structure=legacy"')^</value>
+                </argument>
+                <argument id="outfile">
+                    <value>FS.zip</value>
+                </argument>
+            </resource>
+            <resource name="unzip" location="commandlineTools">
+                <argument id="source">
+                    <value>FS.zip</value>
+                </argument>
+            </resource>
+            <resource name="rm" location="commandlineTools">
+                <argument id="file">
+                    <value>FS.zip</value>
+                </argument>
+                <argument id="f"/>
+            </resource>
+            <resource name="mv" location="commandlineTools">
+                <argument id="source">
+                    <value>^concat(/Pipeline/parameters/parameter[name='assessor_id']/values/unique/text(),'/DATA/',/Pipeline/parameters/parameter[name='label']/values/unique/text())^</value>
+                </argument>
+                <argument id="destination">
+                    <value>.</value>
+                </argument>
+            </resource>
+            <resource name="rm" location="commandlineTools">
+                <argument id="file">
+                    <value>^/Pipeline/parameters/parameter[name='assessor_id']/values/unique/text()^</value>
+                </argument>
+                <argument id="r"/>
+                <argument id="f"/>
+            </resource>
+        </step>
+        <!-- END PREP FOR RELAUNCH -->
+        <!-- BEGIN PREP FOR CHPC EXECUTION -->
+        <!-- <step id="MV_DATA_TO_CHPC" description="Move build files from NRG build space to CHPC build space" precondition="^/Pipeline/parameters/parameter[name='environment']/values/unique/text()='CHPC'^">
+            <resource name="mv" localtion="commandlineTools">
+                <argument id="source">
+                    <value>^/Pipeline/parameters/parameter[name='freesurferdir']/values/unique/text()^</value>
+                </argument>
+                <argument id="destination">
+                    <value>^replace(/Pipeline/parameters/parameter[name='freesurferdir']/values/unique/text(), /Pipeline/parameters/parameter[name='cnda_build_root']/values/unique/text(), /Pipeline/parameters/parameter[name='chpc_build_root']/values/unique/text())^</value>
+                </argument>
+            </resource>
+            <resource name="mv" localtion="commandlineTools">
+                <argument id="source">
+                    <value>^/Pipeline/parameters/parameter[name='rawdir']/values/unique/text()^</value>
+                </argument>
+                <argument id="destination">
+                    <value>^replace(/Pipeline/parameters/parameter[name='rawdir']/values/unique/text(), /Pipeline/parameters/parameter[name='cnda_build_root']/values/unique/text(), /Pipeline/parameters/parameter[name='chpc_build_root']/values/unique/text())^</value>
+                </argument>
+            </resource>
+        </step>
+        <step id="BUILD_SCRIPT" description="Create CHPC execution script"  workdirectory="^/Pipeline/parameters/parameter[name='workdir']/values/unique/text()^" precondition="^/Pipeline/parameters/parameter[name='environment']/values/unique/text()='CHPC'^">
+            <resource name="foo" location="bar">
+                <argument id="foo">
+                    <value></value>
+                </argument>
+            </resource>
+        </step>
+        <step id="COPY_SCRIPT_TO_CHPC" description="Copy execution script to CHPC" workdirectory="^/Pipeline/parameters/parameter[name='workdir']/values/unique/text()^" precondition="^/Pipeline/parameters/parameter[name='environment']/values/unique/text()='CHPC'^">
+            <resource name="scp" location="commandlineTools" >
+                <argument id="i">
+                    <value>^/Pipeline/parameters/parameter[name='chpc_ssh_identity_file']/values/unique/text()^</value>
+                </argument>
+                <argument id="r"/>
+                <argument id="source">
+                    <value>fs_53_script_file</value>
+                </argument>
+                <argument id="destination">
+                    <value>^concat('/Pipeline/parameters/parameter[name='chpc_ssh_login']/values/unique/text(),':',/Pipeline/parameters/parameter[name='remote_builddir']/values/unique/text())^</value>
+                </argument>
+            </resource>
+        </step> -->
+        <!-- END PREP FOR CHPC EXECUTION -->
+        <!-- BEGIN CHPC EXECUTION -->
+        <!-- <step id="QUEUE_JOB" description="Queue Job" awaitApprovalToProceed="true" precondition="^/Pipeline/parameters/parameter[name='environment']/values/unique/text()='CHPC'^">
+            <resource name="ssh" location="commandlineTools" >
+                <argument id="i">
+                    <value>^/Pipeline/parameters/parameter[name='chpc_ssh_identity_file']/values/unique/text()^</value>
+                </argument>
+                <argument id="login_credentials">
+                    <value>/Pipeline/parameters/parameter[name='chpc_ssh_login']/values/unique/text()</value>
+                </argument>
+                <argument id="command">
+                    <value>^concat('" qsub -e ',/Pipeline/parameters/parameter[name='remote_outdir']/values/unique/text(),'/PBS_',/Pipeline/parameters/parameter[name='sessionId']/values/unique/text(),'.e -o ',/Pipeline/parameters/parameter[name='remote_outdir']/values/unique/text(),'/PBS_',/Pipeline/parameters/parameter[name='sessionId']/values/unique/text(),'.o ',/Pipeline/parameters/parameter[name='remote_outdir']/values/unique/text(),'/',/Pipeline/parameters/parameter[name='param_file']/values/unique/text(),'"')^</value>
+                </argument>
+            </resource>
+        </step> -->
+        <!-- END CHPC EXECUTION -->
+        <!-- BEGIN NRG EXECUTION -->
+        <step id="RUN_FS" description="Launch Freesurfer" workdirectory="^/Pipeline/parameters/parameter[name='freesurferdir']/values/unique/text()^" precondition="^not(/Pipeline/parameters/parameter[name='environment']/values/unique/text()='CHPC')^">
+            <resource name="recon_all_from_params_file" location="Freesurfer/resources">
+                <argument id="fsVersion">
+                    <value>5.3-HCP-patch</value>
+                </argument>
+                <argument id="paramsFile">
+                    <value>^/Pipeline/parameters/parameter[name='paramsFile']/values/unique/text()^</value>
+                </argument>
+            </resource>
+        </step>
+        <!-- END NRG EXECUTION -->
+        <!-- WHEN CHPC EXECUTION HAS FINISHED, RESTART PIPELINE HERE -->
+        <!-- <step id="MV_DATA_FROM_CHPC" description="Move build files from CHPC build space to NRG build space" precondition="^/Pipeline/parameters/parameter[name='environment']/values/unique/text()='CHPC'^">
+            <resource name="mv" localtion="commandlineTools">
+                <argument id="source">
+                    <value>^replace(/Pipeline/parameters/parameter[name='freesurferdir']/values/unique/text(), /Pipeline/parameters/parameter[name='cnda_build_root']/values/unique/text(), /Pipeline/parameters/parameter[name='chpc_build_root']/values/unique/text())^</value>
+                </argument>
+                <argument id="destination">
+                    <value>^/Pipeline/parameters/parameter[name='freesurferdir']/values/unique/text()^</value>
+                </argument>
+            </resource>
+        </step> -->
+        <!-- BEGIN COOLDOWN FOR STANDALONE EXECUTION -->
+        <step id="CREATE_ASSESSOR" description="Generate Freesurfer assessor XML" workdirectory="^/Pipeline/parameters/parameter[name='tempdir']/values/unique/text()^" precondition="^not(/Pipeline/parameters/parameter[name='relaunch']/values/unique/text()='true')^">
+            <resource name="stats2xml_fs5.3" location="Freesurfer/resources">
+                <argument id="project">
+                    <value>^/Pipeline/parameters/parameter[name='project']/values/unique/text()^</value>
+                </argument>
+                <argument id="xnatId">
+                    <value>^/Pipeline/parameters/parameter[name='id']/values/unique/text()^</value>
+                </argument>
+                <argument id="type">
+                    <value>Freesurfer</value>
+                </argument>
+                <argument id="freesurfer_id">
+                    <value>^/Pipeline/parameters/parameter[name='assessor_id']/values/unique/text()^</value>
+                </argument>
+                <argument id="statsloc">
+                    <value>^concat(/Pipeline/parameters/parameter[name='freesurfer_subjectdir']/values/unique/text(),'/stats')^</value>
+                </argument>
+                <argument id="t1">
+                    <value>^concat('"',PIPELINE_LOOPON(T1),'"')^</value>
+                </argument>
+            </resource>
+        </step>
+        <step id="CREATE_ASSESSOR_RELAUNCH" description="Generate Freesurfer assessor XML" workdirectory="^/Pipeline/parameters/parameter[name='tempdir']/values/unique/text()^" precondition="^/Pipeline/parameters/parameter[name='relaunch']/values/unique/text()='true'^">
+            <resource name="stats2xml_fs5.3" location="Freesurfer/resources">
+                <argument id="project">
+                    <value>^/Pipeline/parameters/parameter[name='project']/values/unique/text()^</value>
+                </argument>
+                <argument id="xnatId">
+                    <value>^/Pipeline/parameters/parameter[name='id']/values/unique/text()^</value>
+                </argument>
+                <argument id="type">
+                    <value>Freesurfer</value>
+                </argument>
+                <argument id="freesurfer_id">
+                    <value>^/Pipeline/parameters/parameter[name='assessor_id']/values/unique/text()^</value>
+                </argument>
+                <argument id="statsloc">
+                    <value>^concat(/Pipeline/parameters/parameter[name='freesurfer_subjectdir']/values/unique/text(),'/stats')^</value>
+                </argument>
+            </resource>
+        </step>
+        <step id="PUT_ASSESSOR" description="Create Freesurfer assessor on CNDA" workdirectory="^/Pipeline/parameters/parameter[name='tempdir']/values/unique/text()^">
+            <resource name="XnatDataClient" location="xnat_tools">
+                <argument id="user">
+                    <value>^/Pipeline/parameters/parameter[name='user']/values/unique/text()^</value>
+                </argument>
+                <argument id="password">
+                    <value>^/Pipeline/parameters/parameter[name='pwd']/values/unique/text()^</value>
+                </argument>
+                <argument id="method">
+                    <value>PUT</value>
+                </argument>
+                <argument id="remote">
+                    <value>^concat('"',/Pipeline/parameters/parameter[name='host']/values/unique/text(),'data/experiments/',/Pipeline/parameters/parameter[name='id']/values/unique/text(),'/assessors/',/Pipeline/parameters/parameter[name='assessor_id']/values/unique/text(),'?inbody=true&amp;overwrite=true"')^</value>
+                </argument>
+                <argument id="infile">
+                    <!-- This filename will be modified when new stats resource is written -->
+                    <value>^concat(/Pipeline/parameters/parameter[name='id']/values/unique/text(),'_freesurfer5.xml')^</value>
+                </argument>
+            </resource>
+        </step>
+        <step id="CREATE_CATALOGS" description="Create resource catalogs" precondition="^/Pipeline/parameters/parameter[name='relaunch']/values/unique/text()='false'^">
+            <resource name="XnatDataClient" location="xnat_tools">
+                <argument id="user">
+                   <value>^/Pipeline/parameters/parameter[name='user']/values/unique/text()^</value>
+                </argument>
+                <argument id="password">
+                   <value>^/Pipeline/parameters/parameter[name='pwd']/values/unique/text()^</value>
+                </argument>
+                <argument id="method">
+                    <value>PUT</value>
+                </argument>
+                <argument id="remote">
+                    <value>^concat('"',/Pipeline/parameters/parameter[name='host']/values/unique/text(),'data/experiments/',/Pipeline/parameters/parameter[name='id']/values/unique/text(),'/assessors/',/Pipeline/parameters/parameter[name='assessor_id']/values/unique/text(),'/out/resources/DATA"')^</value>
+                </argument>
+            </resource>
+            <resource name="XnatDataClient" location="xnat_tools">
+                <argument id="user">
+                   <value>^/Pipeline/parameters/parameter[name='user']/values/unique/text()^</value>
+                </argument>
+                <argument id="password">
+                   <value>^/Pipeline/parameters/parameter[name='pwd']/values/unique/text()^</value>
+                </argument>
+                <argument id="method">
+                    <value>PUT</value>
+                </argument>
+                <argument id="remote">
+                    <value>^concat('"',/Pipeline/parameters/parameter[name='host']/values/unique/text(),'data/experiments/',/Pipeline/parameters/parameter[name='id']/values/unique/text(),'/assessors/',/Pipeline/parameters/parameter[name='assessor_id']/values/unique/text(),'/out/resources/LOG"')^</value>
+                </argument>
+            </resource>
+            <resource name="XnatDataClient" location="xnat_tools">
+                <argument id="user">
+                   <value>^/Pipeline/parameters/parameter[name='user']/values/unique/text()^</value>
+                </argument>
+                <argument id="password">
+                   <value>^/Pipeline/parameters/parameter[name='pwd']/values/unique/text()^</value>
+                </argument>
+                <argument id="method">
+                    <value>PUT</value>
+                </argument>
+                <argument id="remote">
+                    <value>^concat('"',/Pipeline/parameters/parameter[name='host']/values/unique/text(),'data/experiments/',/Pipeline/parameters/parameter[name='id']/values/unique/text(),'/assessors/',/Pipeline/parameters/parameter[name='assessor_id']/values/unique/text(),'/out/resources/SNAPSHOTS"')^</value>
+                </argument>
+            </resource>
+        </step>
+        <step id="PUT_DATA_PREP" description="Prepare to upload FS data" workdirectory="^/Pipeline/parameters/parameter[name='tempdir']/values/unique/text()^">
+            <resource name="rm" location="commandlineTools">
+                <argument id="file">
+                    <value>*</value>
+                </argument>
+                <argument id="r"/>
+                <argument id="f"/>
+            </resource>
+            <resource name="mv" location="commandlineTools">
+                <argument id="source">
+                    <value>^/Pipeline/parameters/parameter[name='freesurfer_subjectdir']/values/unique/text()^</value>
+                </argument>
+                <argument id="destination">
+                    <value>.</value>
+                </argument>
+            </resource>
+        </step>
+        <step id="PUT_DATA" description="Upload FS data files">
+            <resource name="XnatDataClient" location="xnat_tools">
+                <argument id="user">
+                    <value>^/Pipeline/parameters/parameter[name='user']/values/unique/text()^</value>
+                </argument>
+                <argument id="password">
+                    <value>^/Pipeline/parameters/parameter[name='pwd']/values/unique/text()^</value>
+                </argument>
+                <argument id="method">
+                    <value>PUT</value>
+                </argument>
+                <argument id="remote">
+                    <value>^concat('"',/Pipeline/parameters/parameter[name='host']/values/unique/text(),'data/experiments/',/Pipeline/parameters/parameter[name='id']/values/unique/text(),'/assessors/',/Pipeline/parameters/parameter[name='assessor_id']/values/unique/text(),'/resources/DATA/files?overwrite=true&amp;label=DATA&amp;reference=',/Pipeline/parameters/parameter[name='tempdir']/values/unique/text(),'"')^</value>
+                </argument>
+            </resource>
+        </step>
+        <step id="CREATE_EMAIL_FILE" description="Write email csv into a file so snapshot pipeline can find it">
+            <resource name="echo" location="commandlineTools">
+                <argument id="string">
+                    <value>^/Pipeline/parameters/parameter[name='email_csv']/values/unique/text()^</value>
+                </argument>
+                <argument id="redirect_stdout">
+                    <value>^concat(/Pipeline/outputFileNamePrefix/text(),'.csv')^</value>
+                </argument>
+            </resource>
+        </step>
+        <step id="CLEANUP" description="Clean up">
+            <resource name="rm" location="commandlineTools">
+                <argument id="file">
+                    <value>^/Pipeline/parameters/parameter[name='tempdir']/values/unique/text()^</value>
+                </argument>
+                <argument id="r"/>
+                <argument id="f"/>
+            </resource>
+            <resource name="rm" location="commandlineTools">
+                <argument id="file">
+                    <value>^/Pipeline/parameters/parameter[name='rawdir']/values/unique/text()^</value>
+                </argument>
+                <argument id="r"/>
+                <argument id="f"/>
+            </resource>
+            <resource name="rm" location="commandlineTools">
+                <argument id="file">
+                    <value>^/Pipeline/parameters/parameter[name='paramsFile']/values/unique/text()^</value>
+                </argument>
+                <argument id="f"/>
+            </resource>
+        </step>
+        <step id="PUT_LOGS" description="Upload LOG files">
+            <resource name="XnatDataClient" location="xnat_tools">
+                <argument id="user">
+                    <value>^/Pipeline/parameters/parameter[name='user']/values/unique/text()^</value>
+                </argument>
+                <argument id="password">
+                    <value>^/Pipeline/parameters/parameter[name='pwd']/values/unique/text()^</value>
+                </argument>
+                <argument id="method">
+                    <value>PUT</value>
+                </argument>
+                <argument id="remote">
+                    <value>^concat('"',/Pipeline/parameters/parameter[name='host']/values/unique/text(),'data/experiments/',/Pipeline/parameters/parameter[name='id']/values/unique/text(),'/assessors/',/Pipeline/parameters/parameter[name='assessor_id']/values/unique/text(),'/resources/LOG/files?overwrite=true&amp;label=LOG&amp;reference=',/Pipeline/parameters/parameter[name='logdir']/values/unique/text(),'"')^</value>
+                </argument>
+            </resource>
+        </step>
+        <!-- BEGIN SNAPSHOT GENERATION -->
+        <step id="LAUNCH_SNAP" description="Launch Freesurfer snapshot pipeline">
+            <resource name="XnatDataClient" location="xnat_tools">
+                <argument id="user">
+                   <value>^/Pipeline/parameters/parameter[name='user']/values/unique/text()^</value>
+                </argument>
+                <argument id="password">
+                   <value>^/Pipeline/parameters/parameter[name='pwd']/values/unique/text()^</value>
+                </argument>
+                <argument id="method">
+                    <value>POST</value>
+                </argument>
+                <argument id="remote">
+                    <value>^concat('"',/Pipeline/parameters/parameter[name='host']/values/unique/text(),'data/projects/',/Pipeline/parameters/parameter[name='project']/values/unique/text(),'/pipelines/Freesurfer_Snapshots/experiments/',/Pipeline/parameters/parameter[name='assessor_id']/values/unique/text(),'"')^</value>
+                </argument>
+            </resource>
+        </step>
+        <!-- END SNAPSHOT GENERATION -->
+        <step id="NOTIFY_LIST" description="Notify users in email list" precondition="EXISTS(^concat(/Pipeline/outputFileNamePrefix/text(),'.csv')^)">
+            <resource name="Notifier" location="notifications">
+                <argument id="user">
+                    <value>^/Pipeline/parameters/parameter[name='user']/values/unique/text()^</value>
+                </argument>
+                <argument id="password">
+                    <value>^/Pipeline/parameters/parameter[name='pwd']/values/unique/text()^</value>
+                </argument>
+                <argument id="tolist">
+                    <value>^concat(/Pipeline/outputFileNamePrefix/text(),'.csv')^</value>
+                </argument>
+                <!-- <argument id="cc">
+                    <value>^/Pipeline/parameters/parameter[name='adminemail']/values/unique/text()^</value>
+                </argument> -->
+                <argument id="from">
+                    <value>^/Pipeline/parameters/parameter[name='adminemail']/values/unique/text()^</value>
+                </argument>
+                <argument id="subject">
+                    <value>^/Pipeline/parameters/parameter[name='email_subject']/values/unique/text()^</value>
+                </argument>
+                <argument id="host">
+                    <value>^/Pipeline/parameters/parameter[name='mailhost']/values/unique/text()^</value>
+                </argument>
+                <argument id="body">
+                    <value>^/Pipeline/parameters/parameter[name='email_body']/values/unique/text()^</value>
+                </argument>
+            </resource>
+        </step>
+        <step id="NOTIFY" description="Notify user" precondition="!EXISTS(^concat(/Pipeline/outputFileNamePrefix/text(),'.csv')^)">
+            <resource name="Notifier" location="notifications">
+                <argument id="user">
+                    <value>^/Pipeline/parameters/parameter[name='user']/values/unique/text()^</value>
+                </argument>
+                <argument id="password">
+                    <value>^/Pipeline/parameters/parameter[name='pwd']/values/unique/text()^</value>
+                </argument>
+                <argument id="to">
+                    <value>^/Pipeline/parameters/parameter[name='useremail']/values/unique/text()^</value>
+                </argument>
+                <argument id="cc">
+                    <value>^/Pipeline/parameters/parameter[name='adminemail']/values/unique/text()^</value>
+                </argument>
+                <argument id="from">
+                    <value>^/Pipeline/parameters/parameter[name='adminemail']/values/unique/text()^</value>
+                </argument>
+                <argument id="subject">
+                    <value>^/Pipeline/parameters/parameter[name='email_subject']/values/unique/text()^</value>
+                </argument>
+                <argument id="host">
+                    <value>^/Pipeline/parameters/parameter[name='mailhost']/values/unique/text()^</value>
+                </argument>
+                <argument id="body">
+                    <value>^concat('Dear ',/Pipeline/parameters/parameter[name='userfullname']/values/unique/text(),',&lt;br&gt;',/Pipeline/parameters/parameter[name='email_body']/values/unique/text())^</value>
+                </argument>
+            </resource>
+        </step>
+    </steps>
+</Pipeline>

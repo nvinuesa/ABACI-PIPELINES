@@ -1,0 +1,11 @@
+<spm:vbmImageAssessor xmlns:xnat="http://nrg.wustl.edu/xnat" xmlns:spm="http://nrg.wustl.edu/spm" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<spm:TissueType>CSF</spm:TissueType>
+	<spm:Volume>5345.23</spm:Volume>
+	<spm:Modulated>TRUE</spm:Modulated>
+	<spm:Smoothing>8</spm:Smoothing>
+	<spm:StereotaxicSpace>MNI<spm:StereotaxicSpace>
+	<spm:AlgoTissClass>Spm12b</spm:AlgoTissClass>
+	<spm:AlgoNorm>Spm12b</spm:AlgoNorm>
+	<spm:baseScanNumber>2</spm:baseScanNumber>
+	<spm:WorkFlowID>No ID</spm:WorkFlowID>
+</spm:vbmImageAssessor>

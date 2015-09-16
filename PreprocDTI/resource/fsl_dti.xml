@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Resource xmlns="http://nrg.wustl.edu/pipeline">
+    <name>fsl_dti.sh</name>
+    <location>PreprocDTI/resource</location>
+    <type>Executable</type>
+    <description>Script to run all FSL DTI preprocessing</description>
+    <estimated_time>00:00:01</estimated_time>
+    <input>
+	<argument id="nifti" prefix="">
+		<description>Path to the nifti file</description>
+	</argument>
+	<argument id="workdir" prefix="">
+		<description>Path to the workdir</description>
+	</argument>
+	<argument id="scanid" prefix="">
+		<description>Scan id number</description>
+	</argument>
+    </input>
+</Resource>

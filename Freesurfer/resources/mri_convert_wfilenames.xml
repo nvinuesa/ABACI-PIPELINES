@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Resource xmlns="http://nrg.wustl.edu/pipeline">
+    <name>mri_convert_wfilenames.sh</name>
+    <location>Freesurfer/resources/scripts</location>
+    <!-- <commandPrefix>source freesurfer5_setup.sh;</commandPrefix> --> 
+    <type>Executable</type>
+    <description>Launches mri_convert with proper output filename (001.mgz, 002.mgz, ...)</description>
+    <estimated_time>00:00:30</estimated_time>
+    <input>
+        <argument id="input">
+            <description>Input file</description>
+        </argument>
+    </input>
+</Resource>

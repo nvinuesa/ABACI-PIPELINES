@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Resource xmlns="http://nrg.wustl.edu/pipeline">
+    <name>snap_montage_fs5.csh</name>
+    <location>Freesurfer/resources</location>
+    <type>Executable</type>
+    <description>Generate FreeSurfer snapshots</description>
+    <commandPrefix>vglrun xvfb_wrapper.sh</commandPrefix>
+    <estimated_time>00:30:00</estimated_time>
+    <input>
+        <argument id="subj">
+            <description>FreeSurfer subject. In our case, this is the MR label.</description>
+        </argument>
+        <argument id="fs_root_dir">
+            <description>Directory containing FreeSurfer subject directory</description>
+        </argument>
+    </input>
+</Resource>

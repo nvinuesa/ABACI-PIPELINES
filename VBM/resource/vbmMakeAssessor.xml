@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Resource xmlns="http://nrg.wustl.edu/pipeline">
+	<name>run_vbmMakeAssessor.sh /usr/local/MATLAB/MCR/v7141</name>
+	<location>VBM/resource/vbmMakeAssessor</location>
+    	<type>Executable</type>
+	<description>Generates xml file to upload as assessor</description>
+    	<estimated_time>00:00:01</estimated_time>
+	<input>
+		<argument id="input" prefix="">
+			<description>Path to input NIFTI file</description>
+		</argument>
+	</input>
+</Resource>

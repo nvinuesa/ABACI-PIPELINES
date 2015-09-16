@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Resource xmlns="http://nrg.wustl.edu/pipeline">
+	<name>runW2MHS.sh</name>
+	<location>W2MHS/resource</location>
+    	<type>Executable</type>
+	<description>Runs W2MHS</description>
+    	<estimated_time>00:00:01</estimated_time>
+	<input>
+		<argument id="t1">
+			<description>Path to T1 nifti file</description>
+		</argument>
+		<argument id="flair">
+			<description>Path to FLAIR nifti file</description>
+		</argument>
+	</input>
+</Resource>

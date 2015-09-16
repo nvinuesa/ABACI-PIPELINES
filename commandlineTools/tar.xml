@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pip:Resource xmlns:pip="http://nrg.wustl.edu/pipeline">
+	<pip:name>tar</pip:name>
+	<pip:type>Executable</pip:type>
+	<pip:description>TARball</pip:description>
+	<pip:estimated_time>00:00:01</pip:estimated_time>
+	<pip:input>
+		<pip:argument id="xvzf">
+			<pip:name>xvzf</pip:name>
+			<pip:description>Extract files from archive</pip:description>
+		</pip:argument>
+		<pip:argument id="cvzf">
+			<pip:name>cvzf</pip:name>
+			<pip:description>Create a new archive</pip:description>
+		</pip:argument>		
+		<pip:argument id="archive">
+			<pip:description>Archive name</pip:description>
+		</pip:argument>
+		<pip:argument id="files">
+			<pip:description>Dir/file to zip</pip:description>
+		</pip:argument>
+
+	</pip:input>
+</pip:Resource>

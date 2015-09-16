@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Resource xmlns="http://nrg.wustl.edu/pipeline">
+	<name>/usr/local/MATLAB/R2012a/bin/matlab -nojvm -nodesktop -r "addpath /usr/local/ABACI/xnat/pipeline/catalog/pipelines/VBM_VM/resource/; segmentation(&apos;</name> 
+    <type>Executable</type>
+	<description>Generates segmented images from NIFTI file using SPM12b</description>
+    <estimated_time>00:00:01</estimated_time>
+	<input>
+		<argument id="input" prefix="">
+			<description>Path to input DICOM files</description>
+		</argument>
+		<argument id="endChar2" prefix="">
+			<description>Closing characters needed to execute MATLAB command line</description>
+		</argument>
+	</input>
+</Resource>

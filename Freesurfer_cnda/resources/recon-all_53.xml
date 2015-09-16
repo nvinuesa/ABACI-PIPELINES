@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Resource xmlns="http://nrg.wustl.edu/pipeline">
+    <name>recon-all</name>
+    <commandPrefix>source freesurfer53-patch_setup.sh;</commandPrefix>
+    <type>Executable</type>
+    <description>Launches recon-all</description>
+    <input>
+        <argument id="s">
+            <name>subjid</name>
+            <description>Subject</description>
+        </argument>
+        <argument id="sd">
+            <name>sd</name>
+            <description>Subject Dir</description>
+        </argument>
+        <argument id="i">
+            <name>i</name>
+            <description>In volume</description>
+        </argument>
+        <argument id="args">
+            <description>Any additional arguments</description>
+        </argument>
+    </input>
+</Resource>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Resource xmlns="http://nrg.wustl.edu/pipeline">
+    <name>mQcAssessor.py</name>
+    <location>ManualQC/resources</location>
+    <type>Executable</type>
+    <description>Generate Manual QC assessor</description>
+    <estimated_time>00:30:00</estimated_time>
+    <input>
+        <argument id="workdir">
+        	<name>w</name>
+        	<description>Build dir.</description>
+        </argument>
+        <argument id="1">
+        	<name>1</name>
+			<description>Comments T1</description>
+        </argument>
+	<argument id="2">
+        	<name>2</name>
+			<description>Comments FLAIR</description>
+        </argument>
+	<argument id="3">
+        	<name>3</name>
+			<description>Comments T2</description>
+        </argument>
+    </input>
+</Resource>

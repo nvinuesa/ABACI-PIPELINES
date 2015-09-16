@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Resource xmlns="http://nrg.wustl.edu/pipeline">
+    <name>fsAssessor.py</name>
+    <location>Freesurfer/resources</location>
+    <type>Executable</type>
+    <description>Generate FreeSurfer assessor using MATLAB func</description>
+    <estimated_time>00:30:00</estimated_time>
+    <input>
+        <argument id="workdir">
+        	<name>w</name>
+        	<description>Build dir.</description>
+        </argument>
+        <argument id="fsdir">
+        	<name>f</name>
+			<description>Directory containing FreeSurfer subject directory</description>
+        </argument>
+    </input>
+</Resource>

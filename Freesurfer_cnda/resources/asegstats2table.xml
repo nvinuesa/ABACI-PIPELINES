@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Resource xmlns="http://nrg.wustl.edu/pipeline">
+    <name>asegstats2table.sh</name>
+    <location>Freesurfer/resources/scripts</location>
+    <type>Executable</type>
+    <description>Launches ILP script</description>
+    <input>
+        <argument id="fsVersion">
+            <description>Version of Freesurfer tools to use</description>
+        </argument>
+        <argument id="subjectsDir">
+            <description>Directory in which the Freesurfer subject directory can be found</description>
+        </argument>
+        <argument id="subject">
+            <name>s</name>
+            <description>Freesurfer subject identifier (in our case, the label of the session on which FS was run)</description>
+        </argument>
+        <argument id="delimiter">
+            <name>d</name>
+            <description>Output file delimiter</description>
+        </argument>
+        <argument id="outfile">
+            <name>t</name>
+            <description>Output file</description>
+        </argument>
+    </input>
+</Resource>

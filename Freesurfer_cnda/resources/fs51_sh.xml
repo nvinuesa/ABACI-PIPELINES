@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Resource xmlns="http://nrg.wustl.edu/pipeline">
+    <name>fs51.sh</name>
+    <location>Freesurfer/resources/scripts</location>
+    <type>Executable</type>
+    <description>Freesurfer batch file</description>
+    <estimated_time>10:00:00</estimated_time>
+    <input>
+        <argument id="subj">
+            <description>FreeSurfer subject. In our case, this is the MR label.</description>
+        </argument>
+        <argument id="fs_root_dir">
+            <description>Directory containing FreeSurfer subject directory</description>
+        </argument>
+        <argument id="fs_args">
+            <description>Arguments to pass to recon-all, other than subject name and root directory</description>
+        </argument>
+    </input>
+</Resource>

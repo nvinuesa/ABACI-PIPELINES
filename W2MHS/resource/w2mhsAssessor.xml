@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Resource xmlns="http://nrg.wustl.edu/pipeline">
+	<name>run_w2mhsAssessor.sh /usr/local/MATLAB/MCR/v7141 </name>
+	<location>W2MHS/resource/w2mhsAssessor</location>
+    	<type>Executable</type>
+	<description>Make W2MHS assessor</description>
+    	<estimated_time>00:00:01</estimated_time>
+	<input>
+		<argument id="workdir">
+			<description>Build path</description>
+		</argument>
+		<argument id="pmap">
+			<description>Path to the pmap output file</description>
+		</argument>
+	</input>
+</Resource>

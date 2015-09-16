@@ -1,0 +1,10 @@
+tkmedit started: Wed Jan 23 14:33:57 2008
+
+	tkmedit.bin subject1_before brainmask.mgz 
+
+$Id: tkmedit.c,v 1.320.2.2 2007/08/21 18:59:18 nicks Exp $ $Name: stable4 $
+Set user home dir to /data/nil-external/nrg/packages/linux/freesurfer/QAtools/data_checker
+Set subject home dir to /data/nil-external/nrg/packages/linux/freesurfer/subjects/buckner_data/tutorial_subjs/subject1_before
+Using interface file /data/nil-external/nrg/packages/linux/freesurfer/lib/tcl/tkmedit.tcl
+Tcl: Successfully parsed tkmedit.tcl
+Tcl: Successfully parsed tkm_functional.tcl

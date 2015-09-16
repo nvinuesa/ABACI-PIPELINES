@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Resource xmlns="http://nrg.wustl.edu/pipeline">
+    <name>standard_ILP_regions.R</name>
+    <commandPrefix>source R_setup.sh; Rscript</commandPrefix>
+    <location>UNKNOWN</location>
+    <type>Executable</type>
+    <description>Launches ILP script</description>
+    <input>
+        <argument id="volumeCSV">
+            <description>Input volume stats csv file</description>
+        </argument>
+        <argument id="sessionLabel">
+            <description>Session label</description>
+        </argument>
+        <argument id="age">
+            <description>age</description>
+        </argument>
+    </input>
+</Resource>

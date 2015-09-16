@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Resource xmlns="http://nrg.wustl.edu/pipeline">
+    <name>stats2xml_fs5.1.pl</name>
+    <location>Freesurfer_cnda/resources/scripts</location>
+    <type>Executable</type>
+    <description>Generates the assessor XML from the APARC and ASEG stats files. For FreeSurfer v5.1.</description>
+    <input>
+        <argument id="project">
+            <name>p</name>
+            <description>Project name</description>
+        </argument>
+        <argument id="xnatId">
+            <name>x</name>
+            <description>Xnat Id</description>
+        </argument>
+        <argument id="type">
+            <name>t</name>
+            <description>Type of Assessor</description>
+        </argument>
+        <argument id="freesurfer_id">
+            <name>f</name>
+            <description>Freesurfer ID</description>
+        </argument>
+        <argument id="t1">
+            <name>m</name>
+            <description>List of T1 ids</description>
+        </argument>
+        <argument id="statsloc">
+            <description>Path to the stats folder</description>
+        </argument>
+    </input>
+</Resource>

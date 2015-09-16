@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Resource xmlns="http://nrg.wustl.edu/pipeline">
+    <name>recon_all_from_params_file.sh</name>
+    <location>Freesurfer/resources/scripts</location>
+    <type>Executable</type>
+    <description>Launches recon-all using a bash params file</description>
+    <input>
+        <argument id="fsVersion">
+            <description>Version of Freesurfer to launch</description>
+        </argument>
+        <argument id="paramsFile">
+            <description>Bash params file</description>
+        </argument>
+    </input>
+</Resource>

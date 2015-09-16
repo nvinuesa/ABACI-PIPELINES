@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Pipeline xmlns="http://nrg.wustl.edu/pipeline" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://nrg.wustl.edu/pipeline ..\schema\pipeline.xsd"  xmlns:fileUtils="http://www.xnat.org/java/org.nrg.imagingtools.utils.FileUtils">
+        <name>LST</name>
+        <!--Should be  Name of the pipeline XML file -->
+        <location>@PIPELINE_DIR_PATH@/LST</location>
+        <!-- Filesystem path to the pipeline XML -->
+        <description>White Matter Hyperintensities segmentation pipeline using LST: A Lesion Segmentation Tool For SPM</description>
+        <documentation>
+           <authors>
+                <author>
+                        <lastname>Vinuesa</lastname>
+                        <firstname>Nicolas</firstname>
+                </author>
+           </authors>
+                <version>1.0</version>
+                <input-parameters>
+                        <parameter>
+                                <name>scanid_t1</name>
+                                <values><schemalink>xnat:imageSessionData/scans/scan/ID</schemalink></values> 
+                                <description>The scan id of the T1 sequence</description>
+                        </parameter>
+			<parameter>
+                                <name>scanid_flair</name>
+                                <values><schemalink>xnat:imageSessionData/scans/scan/ID</schemalink></values> 
+                                <description>The scan ids of the FLAIR sequence</description>
+                        </parameter>
+                        <parameter>
+                                <name>xnat_id</name>
+                                <values><schemalink>xnat:imageSessionData/ID</schemalink></values>
+                                <description>The XNAT ID (Accession Number) of the session</description>
+                        </parameter>
+                        <parameter>
+                                <name>sessionId</name>
+                                <values><schemalink>xnat:imageSessionData/label</schemalink></values>
+                                <description>The session id  of the session</description>
+                        </parameter>
+                        <parameter>
+                                <name>project</name>
+                                <values><schemalink>xnat:imageSessionData/project</schemalink></values>
+                                <description>Project ID</description>
+                        </parameter>
+                        <parameter>
+                                <name>subject</name>
+                                <values><schemalink>xnat:imageSessionData/subject_ID</schemalink></values>
+                                <description>Subject ID</description>
+                        </parameter>
+                </input-parameters>
+        </documentation>
+	<xnatInfo appliesTo="xnat:mrSessionData">
+		<generatesElements>
+			<element>lst:lstAssessorData</element>
+		</generatesElements>
+    	</xnatInfo>
+        <outputFileNamePrefix>^concat(/Pipeline/parameters/parameter[name='workdir']/values/unique/text(),'/LST')^</outputFileNamePrefix>
+        <!-- Description of the Pipeilne -->
+        <parameters>
+                <parameter>
+                        <name>workdir</name>
+                        <values>
+                                <unique>^concat(/Pipeline/parameters/parameter[name='builddir']/values/unique/text(),'/',/Pipeline/parameters/parameter[name='sessionId']/values/unique/text())^</unique>
+                        </values>
+                </parameter>
+        </parameters>
+        <steps>
+                <step id="0" description="Create NIFTI folder" workdirectory="^/Pipeline/parameters/parameter[name='workdir']/values/unique/text()^">
+                    <resource name="mkdir" location="commandlineTools" >
+                        <!-- <argument id="p"/> -->
+                        <argument id="dirname">
+                            <value>NIFTI</value>
+                        </argument>
+                    </resource>
+                </step>   
+		<step id="1a" description="Copy T1 NIFTI data into build folder">
+                    <resource name="XnatRestClient" location="xnat_tools">
+                        <argument id="user">
+                            <value>^/Pipeline/parameters/parameter[name='user']/values/unique/text()^</value>
+                        </argument>
+                        <argument id="password">
+                            <value>^/Pipeline/parameters/parameter[name='pwd']/values/unique/text()^</value>
+                        </argument>
+                        <argument id="host">
+                            <value>^/Pipeline/parameters/parameter[name='host']/values/unique/text()^</value>
+                        </argument>
+                        <argument id="method">
+                            <value>GET</value>
+                        </argument>
+                        <argument id="remote">
+                            <value>^concat('"/data/archive/projects/',/Pipeline/parameters/parameter[name='project']/values/unique/text(),'/subjects/',/Pipeline/parameters/parameter[name='subject']/values/unique/text(),'/experiments/',/Pipeline/parameters/parameter[name='xnat_id']/values/unique/text(),'/scans/',/Pipeline/parameters/parameter[name='scanid_t1']/values/unique/text(),'/resources/NIFTI/files?format=zip&amp;structure=legacy"')^</value>        
+                        </argument> 
+                        <argument id="redirect_output">
+                            <value>^concat(/Pipeline/parameters/parameter[name='workdir']/values/unique/text(),'/NIFTI/T1.zip')^</value>
+                        </argument>
+                    </resource>
+                </step>
+		<step id="1b" description="Copy FLAIR NIFTI data into build folder">
+                    <resource name="XnatRestClient" location="xnat_tools">
+                        <argument id="user">
+                            <value>^/Pipeline/parameters/parameter[name='user']/values/unique/text()^</value>
+                        </argument>
+                        <argument id="password">
+                            <value>^/Pipeline/parameters/parameter[name='pwd']/values/unique/text()^</value>
+                        </argument>
+                        <argument id="host">
+                            <value>^/Pipeline/parameters/parameter[name='host']/values/unique/text()^</value>
+                        </argument>
+                        <argument id="method">
+                            <value>GET</value>
+                        </argument>
+                        <argument id="remote">
+                            <value>^concat('"/data/archive/projects/',/Pipeline/parameters/parameter[name='project']/values/unique/text(),'/subjects/',/Pipeline/parameters/parameter[name='subject']/values/unique/text(),'/experiments/',/Pipeline/parameters/parameter[name='xnat_id']/values/unique/text(),'/scans/',/Pipeline/parameters/parameter[name='scanid_flair']/values/unique/text(),'/resources/NIFTI/files?format=zip&amp;structure=legacy"')^</value>        
+                        </argument> 
+                        <argument id="redirect_output">
+                            <value>^concat(/Pipeline/parameters/parameter[name='workdir']/values/unique/text(),'/NIFTI/FLAIR.zip')^</value>
+                        </argument>
+                    </resource>
+                </step>
+                <step id="1c" description="Unzip the T1 scan files" workdirectory="^concat(/Pipeline/parameters/parameter[name='workdir']/values/unique/text(),'/NIFTI')^">
+                    <resource name="unzip" location="commandlineTools" >
+                        <argument id="source">
+                            <value>^concat(/Pipeline/parameters/parameter[name='workdir']/values/unique/text(),'/NIFTI/T1.zip')^</value>
+                        </argument>
+			<argument id="options">
+		            <value>-oj</value>
+		        </argument>
+                    </resource>
+                </step>
+                  <step id="1d" description="Unzip the FLAIR scan files" workdirectory="^concat(/Pipeline/parameters/parameter[name='workdir']/values/unique/text(),'/NIFTI')^">
+                    <resource name="unzip" location="commandlineTools" >
+                        <argument id="source">
+                            <value>^concat(/Pipeline/parameters/parameter[name='workdir']/values/unique/text(),'/NIFTI/FLAIR.zip')^</value>
+                        </argument>
+			<argument id="options">
+		            <value>-oj</value>
+		        </argument>
+                    </resource>
+                </step>  
+         	<!--
+		<step id="2" description="Create resources location">
+                        <resource name="curl" location="commandlineTools">
+                            <argument id="userpassword">
+                                <value>^concat(/Pipeline/parameters/parameter[name='user']/values/unique/text(),':',/Pipeline/parameters/parameter[name='pwd']/values/unique/text())^</value>
+                            </argument>
+                            <argument id="options">
+                                <value>-X PUT</value>
+                            </argument>
+                            <argument id="url">
+                                <value>^concat('"',/Pipeline/parameters/parameter[name='host']/values/unique/text(),'data/archive/projects/',/Pipeline/parameters/parameter[name='project']/values/unique/text(),'/subjects/',/Pipeline/parameters/parameter[name='subject']/values/unique/text(),'/experiments/',/Pipeline/parameters/parameter[name='xnat_id']/values/unique/text(),'/reconstructions/',/Pipeline/parameters/parameter[name='xnat_id']/values/unique/text(),'_LST?xsiType=xnat:reconstructedImageData&amp;type=LST+files','"')^</value>
+                            </argument> 
+                        </resource> 
+                </step>
+		-->
+		<step id="3a" description="Generate LST batch to be run in the next step" workdirectory="^/Pipeline/parameters/parameter[name='workdir']/values/unique/text()^">
+                        <resource name="lstMakeBatch" location="LST/resource">    
+                          	<argument id="workdir">
+                                 	<value>^/Pipeline/parameters/parameter[name='workdir']/values/unique/text()^</value>
+                                </argument> 
+                                <argument id="t1">
+                                 	<value>^concat(/Pipeline/parameters/parameter[name='workdir']/values/unique/text(),'/NIFTI/',/Pipeline/parameters/parameter[name='scanid_t1']/values/unique/text(),'.nii')^</value>
+                                </argument> 
+                                <argument id="flair">
+                                	<value>^concat(/Pipeline/parameters/parameter[name='workdir']/values/unique/text(),'/NIFTI/',/Pipeline/parameters/parameter[name='scanid_flair']/values/unique/text(),'.nii')^</value>                                           
+                                </argument>                                
+                        </resource>
+                </step>
+		<step id="3b" description="Run spm8 batch" workdirectory="^/Pipeline/parameters/parameter[name='workdir']/values/unique/text()^">
+                        <resource name="spm8" location="generic"> 
+                                <argument id="mcr">
+                                 	<value>/usr/local/MATLAB/MCR/v7141</value>
+                                </argument> 
+                                <argument id="args">
+                                	<value>^concat('batch ',/Pipeline/parameters/parameter[name='workdir']/values/unique/text(),'/batchLST.m')^</value>                                  
+                                </argument>                                
+                        </resource>
+                </step> 
+		 
+		<step id="4" description="Make assessor" workdirectory="^/Pipeline/parameters/parameter[name='workdir']/values/unique/text()^">
+                        <resource name="lstAssessor" location="LST/resource"> 
+                                <argument id="workdir">
+                                 	<value>^/Pipeline/parameters/parameter[name='workdir']/values/unique/text()^</value>
+                                </argument> 
+                                <argument id="scanNumber">
+                                	 <value>^/Pipeline/parameters/parameter[name='scanid_flair']/values/unique/text()^</value>                                  
+                                </argument>                                
+                        </resource>
+                </step> 
+		
+		<step id="CLEANUP1" description="Clean up out">
+		    <resource name="rm" location="commandlineTools">
+		        <argument id="file">
+		            <value>^concat(/Pipeline/parameters/parameter[name='workdir']/values/unique/text(),'/NIFTI/*.zip')^</value>
+		        </argument>
+		        <argument id="r"/>
+		        <argument id="f"/>
+		    </resource>
+		</step>
+		<step id="CLEANUP2" description="Clean up out">
+		    <resource name="rm" location="commandlineTools">
+		        <argument id="file">
+		            <value>^concat(/Pipeline/parameters/parameter[name='workdir']/values/unique/text(),'/NIFTI/',/Pipeline/parameters/parameter[name='scanid_t1']/values/unique/text(),'.nii')^</value>
+		        </argument>
+		        <argument id="r"/>
+		        <argument id="f"/>
+		    </resource>
+		</step>
+		<step id="CLEANUP3" description="Clean up out">
+		    <resource name="rm" location="commandlineTools">
+		        <argument id="file">
+		            <value>^concat(/Pipeline/parameters/parameter[name='workdir']/values/unique/text(),'/NIFTI/',/Pipeline/parameters/parameter[name='scanid_flair']/values/unique/text(),'.nii')^</value>
+		        </argument>
+		        <argument id="r"/>
+		        <argument id="f"/>
+		    </resource>
+		</step>
+
+		<step id="tar" description="Compress all  files" workdirectory="^concat(/Pipeline/parameters/parameter[name='workdir']/values/unique/text(),'/NIFTI')^">
+                        <resource name="tar" location="commandlineTools">
+				<argument id="cvzf"/>
+                                <argument id="archive">
+                                        <value>lst.tar.gz</value>
+                                </argument>
+                                <argument id="files">
+                                        <value>lesion_lbm*</value>
+                                </argument>				
+                        </resource>
+                </step>
+
+		<step id="gzip" description="Compress all nifti files" continueOnFailure="true">
+                        <resource name="gzip" location="commandlineTools">
+                                <argument id="archive">
+                                        <value>^concat(/Pipeline/parameters/parameter[name='workdir']/values/unique/text(),'/NIFTI/*.nii')^</value>
+                                </argument>
+                        </resource>
+                </step> 
+
+		<step id="5" description="Upload pmap to XNAT">
+                        <resource name="XnatRestClient" location="xnat_tools">
+                            <argument id="user">
+				<value>^/Pipeline/parameters/parameter[name='user']/values/unique/text()^</value>
+			    </argument>
+			    <argument id="password">
+				<value>^/Pipeline/parameters/parameter[name='pwd']/values/unique/text()^</value>
+			    </argument>
+			    <argument id="host">
+				<value>^/Pipeline/parameters/parameter[name='host']/values/unique/text()^</value>
+			    </argument>
+                            <argument id="method">
+                                <value>PUT</value>
+                            </argument>
+                            <argument id="remote">
+                                <value>^concat('"',/Pipeline/parameters/parameter[name='host']/values/unique/text(),'data/archive/projects/',/Pipeline/parameters/parameter[name='project']/values/unique/text(),'/subjects/',/Pipeline/parameters/parameter[name='subject']/values/unique/text(),'/experiments/',/Pipeline/parameters/parameter[name='xnat_id']/values/unique/text(),'/resources/LST/files/lst.nii.gz"')^</value>
+                            </argument>
+			    <argument id="local">
+                                <value>^concat(/Pipeline/parameters/parameter[name='workdir']/values/unique/text(),'/NIFTI/lst.tar.gz')^</value>
+                            </argument>                           
+                        </resource> 			
+                </step>
+
+		<step id="CLEANUP4" description="Clean up out">
+		    <resource name="rm" location="commandlineTools">
+		        <argument id="file">
+		            <value>^concat(/Pipeline/parameters/parameter[name='workdir']/values/unique/text(),'/NIFTI/lst.tar.gz')^</value>
+		        </argument>
+		        <argument id="r"/>
+		        <argument id="f"/>
+		    </resource>
+		</step>
+
+		<step id="PUT_ASSESSOR" description="Put xml assessor data" workdirectory="^/Pipeline/parameters/parameter[name='workdir']/values/unique/text()^">
+		    <resource name="XnatDataClient" location="xnat_tools">
+		        <argument id="user">
+		            <value>^/Pipeline/parameters/parameter[name='user']/values/unique/text()^</value>
+		        </argument>
+		        <argument id="password">
+		            <value>^/Pipeline/parameters/parameter[name='pwd']/values/unique/text()^</value>
+		        </argument>
+		        <argument id="method">
+		            <value>PUT</value>
+		        </argument>
+			<argument id="remote">
+                            <value>^concat('"',/Pipeline/parameters/parameter[name='host']/values/unique/text(),'data/archive/projects/',/Pipeline/parameters/parameter[name='project']/values/unique/text(),'/subjects/',/Pipeline/parameters/parameter[name='subject']/values/unique/text(),'/experiments/',/Pipeline/parameters/parameter[name='xnat_id']/values/unique/text(),'/assessors/',/Pipeline/parameters/parameter[name='xnat_id']/values/unique/text(),'_LST?inbody=true"')^</value>
+			</argument>
+		        <argument id="infile">
+		            <value>^concat('"',/Pipeline/parameters/parameter[name='workdir']/values/unique/text(),'/vol.xml"')^</value>
+		        </argument>
+		    </resource>
+		</step>
+
+                <step id="END-Notify" description="Notify">
+                        <resource name="Notifier" location="notifications">
+                                <argument id="user">
+                                        <value>^/Pipeline/parameters/parameter[name='user']/values/unique/text()^</value>
+                                </argument>
+                                <argument id="password">
+                                        <value>^/Pipeline/parameters/parameter[name='pwd']/values/unique/text()^</value>
+                                </argument>
+                                <argument id="to">
+                                        <value>^/Pipeline/parameters/parameter[name='useremail']/values/unique/text()^</value>
+                                </argument>
+                                <argument id="cc">
+                                        <value>^/Pipeline/parameters/parameter[name='adminemail']/values/unique/text()^</value>
+                                </argument>
+                                <argument id="from">
+                                        <value>^/Pipeline/parameters/parameter[name='adminemail']/values/unique/text()^</value>
+                                </argument>
+                                <argument id="subject">
+                                        <value>^concat(/Pipeline/parameters/parameter[name='xnatserver']/values/unique/text(), ' update: LST files generated for ',/Pipeline/parameters/parameter[name='sessionId']/values/unique/text() )^</value>
+                                </argument>
+                                <argument id="host">
+                                        <value>^/Pipeline/parameters/parameter[name='mailhost']/values/unique/text()^</value>
+                                </argument>
+                                <argument id="body">
+                                        <value>^concat('Dear ',/Pipeline/parameters/parameter[name='userfullname']/values/unique/text(),',&lt;br&gt; &lt;p&gt;', ' LST files have been generated for  ', /Pipeline/parameters/parameter[name='sessionId']/values/unique/text(),' . Details of the  session are available  &lt;a href="',/Pipeline/parameters/parameter[name='host']/values/unique/text(),'/app/action/DisplayItemAction/search_element/xnat:mrSessionData/search_field/xnat:mrSessionData.ID/search_value/',/Pipeline/parameters/parameter[name='xnat_id']/values/unique/text(),'"&gt;', ' here. &lt;/a&gt; &lt;/p&gt;&lt;br&gt;', ' &lt;/p&gt;&lt;br&gt;', 'XNAT Team.')^
+                                        </value>
+                                </argument>
+                        </resource>
+                </step>
+        </steps>
+</Pipeline>

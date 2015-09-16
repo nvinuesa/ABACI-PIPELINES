@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Resource xmlns="http://nrg.wustl.edu/pipeline">
+    <name>mri_convert_wfilenames.sh</name>
+    <location>Freesurfer/resources/scripts</location>
+    <type>Executable</type>
+    <description>Launches mri_convert with proper output filename (001.mgz, 002.mgz, ...)</description>
+    <estimated_time>00:00:30</estimated_time>
+    <input>
+        <argument id="inputDir">
+            <description>Input DICOM directory</description>
+        </argument>
+        <argument id="format">
+            <description>Is the input DICOM or NIFTI?</description>
+        </argument>
+        <argument id="setupScript">
+            <description>Name of the Freesurfer setup script. Must be on the path</description>
+        </argument>
+    </input>
+</Resource>

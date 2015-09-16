@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Resource xmlns="http://nrg.wustl.edu/pipeline">
+	<name>spm12.sh batch</name>
+	<location>VBM/resource</location>
+    	<type>Executable</type>
+	<description>Generates batch file for SPM</description>
+    	<estimated_time>00:00:01</estimated_time>
+	<input>
+		<argument id="batch">
+			<description>Path to input spm batch file</description>
+		</argument>
+	</input>
+</Resource>

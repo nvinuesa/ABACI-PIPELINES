@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Pipeline xmlns="http://nrg.wustl.edu/pipeline" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://nrg.wustl.edu/pipeline ..\schema\pipeline.xsd"  xmlns:fileUtils="http://www.xnat.org/java/org.nrg.imagingtools.utils.FileUtils">
+        <name>VBM</name>
+        <!--Should be  Name of the pipeline XML file -->
+        <location>@PIPELINE_DIR_PATH@/VBM</location>
+        <!-- Filesystem path to the pipeline XML -->
+        <description>VBM pipeline</description>
+        <documentation>
+           <authors>
+                <author>
+                        <lastname>Vinuesa</lastname>
+                        <firstname>Nicolas</firstname>
+                </author>
+           </authors>
+                <version>1.0</version>
+                <input-parameters>
+                        <parameter>
+                                <name>scanids</name>
+                                <values><schemalink>xnat:imageSessionData/scans/scan/ID</schemalink></values> 
+                                <description>Please select the session corresponding to T1 sequence</description>
+                        </parameter>
+			<parameter>
+                                <name>template</name>
+				<values><csv>/usr/local/MATLAB/spm12/spm12_mcr/spm12/tpm/TPM.nii</csv></values>
+                                <description>Path to the template file used for SPM segmentation (default SPM's TPM.nii)</description>
+                        </parameter>
+                        <parameter>
+                                <name>xnat_id</name>
+                                <values><schemalink>xnat:imageSessionData/ID</schemalink></values>
+                                <description>The XNAT ID (Accession Number) of the session</description>
+                        </parameter>
+                        <parameter>
+                                <name>sessionId</name>
+                                <values><schemalink>xnat:imageSessionData/label</schemalink></values>
+                                <description>The session id  of the session</description>
+                        </parameter>
+                        <parameter>
+                                <name>project</name>
+                                <values><schemalink>xnat:imageSessionData/project</schemalink></values>
+                                <description>Project ID</description>
+                        </parameter>
+                        <parameter>
+                                <name>subject</name>
+                                <values><schemalink>xnat:imageSessionData/subject_ID</schemalink></values>
+                                <description>Subject ID</description>
+                        </parameter>
+                </input-parameters>
+        </documentation>
+	<xnatInfo appliesTo="xnat:mrSessionData">
+		<generatesElements>
+			<element>vbm:vbmAssessorData</element>
+		</generatesElements>
+    	</xnatInfo>
+        <outputFileNamePrefix>^concat(/Pipeline/parameters/parameter[name='workdir']/values/unique/text(),'/Segmentation')^</outputFileNamePrefix>
+	<loop id="tissue" xpath="^/Pipeline/parameters/parameter[name='tissues']/values/list^"/>
+        <!-- Description of the Pipeilne -->
+        <parameters>
+	        <parameter>
+		         <name>tissues</name>
+			 <values>
+			   <list>c1</list>
+			   <list>c2</list>
+			   <list>c3</list>
+			   <list>mwc1</list>
+			   <list>mwc2</list>
+			   <list>mwc3</list>
+			   <list>wc1</list>
+			   <list>wc2</list>
+			   <list>wc3</list>
+			   <list>iy_</list>
+			   <list>y_</list>
+			   <list>BiasField_</list>
+			 </values>
+                </parameter>
+                <parameter>
+                        <name>workdir</name>
+                        <values>
+                                <unique>^concat(/Pipeline/parameters/parameter[name='builddir']/values/unique/text(),'/',/Pipeline/parameters/parameter[name='sessionId']/values/unique/text())^</unique>
+                        </values>
+                </parameter>		
+        </parameters>
+        <steps>
+                <step id="0" description="Create NIFTI folder" workdirectory="^/Pipeline/parameters/parameter[name='workdir']/values/unique/text()^">
+                    <resource name="mkdir" location="commandlineTools" >
+                        <!-- <argument id="p"/> -->
+                        <argument id="dirname">
+                            <value>NIFTI</value>
+                        </argument>
+                    </resource>
+                </step>
+
+                <step id="1a" description="Copy NIFTI data into build folder">
+                    <resource name="XnatRestClient" location="xnat_tools">
+                        <argument id="user">
+                            <value>^/Pipeline/parameters/parameter[name='user']/values/unique/text()^</value>
+                        </argument>
+                        <argument id="password">
+                            <value>^/Pipeline/parameters/parameter[name='pwd']/values/unique/text()^</value>
+                        </argument>
+                        <argument id="host">
+                            <value>^/Pipeline/parameters/parameter[name='host']/values/unique/text()^</value>
+                        </argument>
+                        <argument id="method">
+                            <value>GET</value>
+                        </argument>
+                        <argument id="remote">
+                            <value>^concat('"/data/archive/projects/',/Pipeline/parameters/parameter[name='project']/values/unique/text(),'/subjects/',/Pipeline/parameters/parameter[name='subject']/values/unique/text(),'/experiments/',/Pipeline/parameters/parameter[name='xnat_id']/values/unique/text(),'/scans/',/Pipeline/parameters/parameter[name='scanids']/values/unique/text(),'/resources/NIFTI/files?format=zip&amp;structure=legacy"')^</value>        
+                        </argument> 
+                        <argument id="redirect_output">
+                            <value>^concat(/Pipeline/parameters/parameter[name='workdir']/values/unique/text(),'/NIFTI/',/Pipeline/parameters/parameter[name='sessionId']/values/unique/text(),'.zip')^</value>
+                        </argument>
+                    </resource>
+                </step>
+
+                <step id="1b" description="Unzip the scan files" workdirectory="^concat(/Pipeline/parameters/parameter[name='workdir']/values/unique/text(),'/NIFTI')^">
+                    <resource name="unzip" location="commandlineTools" >
+                        <argument id="source">
+                            <value>^concat(/Pipeline/parameters/parameter[name='workdir']/values/unique/text(),'/NIFTI/',/Pipeline/parameters/parameter[name='sessionId']/values/unique/text(),'.zip')^</value>
+                        </argument>
+			<argument id="options">
+		            <value>-oj</value>
+		        </argument>
+                    </resource>
+                </step>
+		<!--
+                <step id="1c" description="Create resources location">
+                        <resource name="curl" location="commandlineTools">
+                            <argument id="userpassword">
+                                <value>^concat(/Pipeline/parameters/parameter[name='user']/values/unique/text(),':',/Pipeline/parameters/parameter[name='pwd']/values/unique/text())^</value>
+                            </argument>
+                            <argument id="options">
+                                <value>-X PUT</value>
+                            </argument>
+                            <argument id="url">
+                                <value>^concat('"',/Pipeline/parameters/parameter[name='host']/values/unique/text(),'data/archive/projects/',/Pipeline/parameters/parameter[name='project']/values/unique/text(),'/subjects/',/Pipeline/parameters/parameter[name='subject']/values/unique/text(),'/experiments/',/Pipeline/parameters/parameter[name='xnat_id']/values/unique/text(),'/resources/',/Pipeline/parameters/parameter[name='xnat_id']/values/unique/text(),'_VBM_SPM?xsiType=xnat:reconstructedImageData&amp;type=VBM+files','"')^</value>
+                            </argument> 
+                        </resource> 
+                </step>
+		-->
+ 		<step id="2a" description="Create tmp folder" workdirectory="^/Pipeline/parameters/parameter[name='workdir']/values/unique/text()^">
+                    <resource name="mkdir" location="commandlineTools" >
+                        <!-- <argument id="p"/> -->
+                        <argument id="dirname">
+                            <value>tmp</value>
+                        </argument>
+                    </resource>
+                </step>
+
+		<step id="2b" description="Create out folder" workdirectory="^/Pipeline/parameters/parameter[name='workdir']/values/unique/text()^">
+                    <resource name="mkdir" location="commandlineTools" >
+                        <argument id="dirname">
+                            <value>out</value>
+                        </argument>
+                    </resource>
+                </step>
+
+		<step id="2c" description="Generate SPM batch to be run in the next step" workdirectory="^/Pipeline/parameters/parameter[name='workdir']/values/unique/text()^">
+                        <resource name="vbmMakeBatch" location="VBM/resource">    
+                          	<argument id="workdir">
+                                 	<value>^/Pipeline/parameters/parameter[name='workdir']/values/unique/text()^</value>
+                                </argument> 
+                                <argument id="input">
+                                 	<value>^concat(/Pipeline/parameters/parameter[name='workdir']/values/unique/text(),'/out/',/Pipeline/parameters/parameter[name='scanids']/values/unique/text(),'.nii')^</value>
+                                </argument> 
+                                <argument id="template">
+                                	<value>^/Pipeline/parameters/parameter[name='template']/values/unique/text()^</value>                                         
+                                </argument>                                
+                        </resource>
+                </step>		
+
+		<step id="3a" description="Copy nifti file to out folder" workdirectory="^/Pipeline/parameters/parameter[name='workdir']/values/unique/text()^">
+                    <resource name="cp" location="commandlineTools" >
+                        <argument id="source">
+                            <value>^concat(/Pipeline/parameters/parameter[name='workdir']/values/unique/text(),'/NIFTI/',/Pipeline/parameters/parameter[name='scanids']/values/unique/text(),'.nii')^</value>
+                        </argument>
+			<argument id="destination">
+                            <value>out</value>
+                        </argument>
+                    </resource>
+                </step>
+		
+                <step id="3b" description="Run SPM batch" workdirectory="^concat(/Pipeline/parameters/parameter[name='workdir']/values/unique/text(),'/out')^">
+                        <resource name="runSpmBatch" location="VBM/resource">                             
+                                <argument id="batch">
+                                 	<value>^concat(/Pipeline/parameters/parameter[name='workdir']/values/unique/text(),'/tmp/batch_vbm.mat')^</value>
+                                </argument>                                 
+                        </resource>
+                </step>
+		
+		<step id="4" description="Make VBM assessor" workdirectory="^/Pipeline/parameters/parameter[name='workdir']/values/unique/text()^">
+                    <resource name="vbmMakeAssessor" location="VBM/resource" >
+                        <argument id="input">
+                            <value>^concat(/Pipeline/parameters/parameter[name='workdir']/values/unique/text(),'/out/',/Pipeline/parameters/parameter[name='scanids']/values/unique/text(),'.nii')^</value>
+                        </argument>
+                    </resource>
+                </step>
+
+                <step id="gzip" description="Compress all nifti files">
+			<resource name="rm" location="commandlineTools">
+				<argument id="file">
+				    <value>^concat(/Pipeline/parameters/parameter[name='workdir']/values/unique/text(),'/NIFTI/',/Pipeline/parameters/parameter[name='scanids']/values/unique/text(),'.nii')^</value>
+				</argument>
+				<argument id="f"/>
+			</resource>  	
+                        <resource name="gzip" location="commandlineTools">
+                                <argument id="archive">
+                                        <value>^concat(/Pipeline/parameters/parameter[name='workdir']/values/unique/text(),'/out/*.nii')^</value>
+                                </argument>
+                        </resource>
+                </step> 
+
+		<step id="5" description="Upload files to XNAT">
+                        <resource name="XnatRestClient" location="xnat_tools">
+                            <argument id="user">
+				<value>^/Pipeline/parameters/parameter[name='user']/values/unique/text()^</value>
+			    </argument>
+			    <argument id="password">
+				<value>^/Pipeline/parameters/parameter[name='pwd']/values/unique/text()^</value>
+			    </argument>
+			    <argument id="host">
+				<value>^/Pipeline/parameters/parameter[name='host']/values/unique/text()^</value>
+			    </argument>
+                            <argument id="method">
+                                <value>PUT</value>
+                            </argument>
+                            <argument id="remote">
+                                <value>^concat('"data/archive/projects/',/Pipeline/parameters/parameter[name='project']/values/unique/text(),'/subjects/',/Pipeline/parameters/parameter[name='subject']/values/unique/text(),'/experiments/',/Pipeline/parameters/parameter[name='xnat_id']/values/unique/text(),'/resources/VBM/files/',PIPELINE_LOOPON(tissue),/Pipeline/parameters/parameter[name='scanids']/values/unique/text(),'.nii.gz"')^</value>
+                            </argument>    
+			    <argument id="local">
+                                <value>^concat(/Pipeline/parameters/parameter[name='workdir']/values/unique/text(),'/out/',PIPELINE_LOOPON(tissue),/Pipeline/parameters/parameter[name='scanids']/values/unique/text(),'.nii.gz')^</value>
+                            </argument>                           
+                        </resource> 
+			<resource name="XnatRestClient" location="xnat_tools">
+                            <argument id="user">
+				<value>^/Pipeline/parameters/parameter[name='user']/values/unique/text()^</value>
+			    </argument>
+			    <argument id="password">
+				<value>^/Pipeline/parameters/parameter[name='pwd']/values/unique/text()^</value>
+			    </argument>
+			    <argument id="host">
+				<value>^/Pipeline/parameters/parameter[name='host']/values/unique/text()^</value>
+			    </argument>
+                            <argument id="method">
+                                <value>PUT</value>
+                            </argument>	
+                            <argument id="remote">
+                                <value>^concat('"data/archive/projects/',/Pipeline/parameters/parameter[name='project']/values/unique/text(),'/subjects/',/Pipeline/parameters/parameter[name='subject']/values/unique/text(),'/experiments/',/Pipeline/parameters/parameter[name='xnat_id']/values/unique/text(),'/resources/VBM/files/',/Pipeline/parameters/parameter[name='scanids']/values/unique/text(),'_seg8.mat"')^</value>
+                            </argument>     
+			    <argument id="local">
+                                <value>^concat(/Pipeline/parameters/parameter[name='workdir']/values/unique/text(),'/out/',/Pipeline/parameters/parameter[name='scanids']/values/unique/text(),'_seg8.mat')^</value>
+                            </argument>                           
+                        </resource> 
+                </step>
+
+		<step id="PUT_ASSESSOR" description="Put xml assessor data" workdirectory="^/Pipeline/parameters/parameter[name='workdir']/values/unique/text()^">
+		    <resource name="XnatDataClient" location="xnat_tools">
+		        <argument id="user">
+		            <value>^/Pipeline/parameters/parameter[name='user']/values/unique/text()^</value>
+		        </argument>
+		        <argument id="password">
+		            <value>^/Pipeline/parameters/parameter[name='pwd']/values/unique/text()^</value>
+		        </argument>
+		        <argument id="method">
+		            <value>PUT</value>
+		        </argument>
+			<argument id="remote">
+                            <value>^concat('"',/Pipeline/parameters/parameter[name='host']/values/unique/text(),'data/archive/projects/',/Pipeline/parameters/parameter[name='project']/values/unique/text(),'/subjects/',/Pipeline/parameters/parameter[name='subject']/values/unique/text(),'/experiments/',/Pipeline/parameters/parameter[name='xnat_id']/values/unique/text(),'/assessors/',/Pipeline/parameters/parameter[name='xnat_id']/values/unique/text(),'_VBM?inbody=true"')^</value>
+			</argument>
+		        <argument id="infile">
+		            <value>^concat('"',/Pipeline/parameters/parameter[name='workdir']/values/unique/text(),'/out/vol.xml"')^</value>
+		        </argument>
+		    </resource>
+		</step>
+		
+		<step id="CLEANUP1" description="Clean up out">
+		    <resource name="rm" location="commandlineTools">
+		        <argument id="file">
+		            <value>^concat(/Pipeline/parameters/parameter[name='workdir']/values/unique/text(),'/out')^</value>
+		        </argument>
+		        <argument id="r"/>
+		        <argument id="f"/>
+		    </resource>
+		</step>
+
+		<step id="CLEANUP2" description="Clean up NIFTI">
+		    <resource name="rm" location="commandlineTools">
+		        <argument id="file">
+		            <value>^concat(/Pipeline/parameters/parameter[name='workdir']/values/unique/text(),'/NIFTI')^</value>
+		        </argument>
+		        <argument id="r"/>
+		        <argument id="f"/>
+		    </resource>
+		</step>
+
+                <step id="END-Notify" description="Notify">
+                        <resource name="Notifier" location="notifications">
+                                <argument id="user">
+                                        <value>^/Pipeline/parameters/parameter[name='user']/values/unique/text()^</value>
+                                </argument>
+                                <argument id="password">
+                                        <value>^/Pipeline/parameters/parameter[name='pwd']/values/unique/text()^</value>
+                                </argument>
+                                <argument id="to">
+                                        <value>^/Pipeline/parameters/parameter[name='useremail']/values/unique/text()^</value>
+                                </argument>
+                                <argument id="cc">
+                                        <value>^/Pipeline/parameters/parameter[name='adminemail']/values/unique/text()^</value>
+                                </argument>
+                                <argument id="from">
+                                        <value>^/Pipeline/parameters/parameter[name='adminemail']/values/unique/text()^</value>
+                                </argument>
+                                <argument id="subject">
+                                        <value>^concat(/Pipeline/parameters/parameter[name='xnatserver']/values/unique/text(), ' update: Segmentation files generated for ',/Pipeline/parameters/parameter[name='sessionId']/values/unique/text() )^</value>
+                                </argument>
+                                <argument id="host">
+                                        <value>^/Pipeline/parameters/parameter[name='mailhost']/values/unique/text()^</value>
+                                </argument>
+                                <argument id="body">
+                                        <value>^concat('Dear ',/Pipeline/parameters/parameter[name='userfullname']/values/unique/text(),',&lt;br&gt; &lt;p&gt;', ' VBM files have been generated for  ', /Pipeline/parameters/parameter[name='sessionId']/values/unique/text(),' . Details of the  session are available  &lt;a href="',/Pipeline/parameters/parameter[name='host']/values/unique/text(),'/app/action/DisplayItemAction/search_element/xnat:mrSessionData/search_field/xnat:mrSessionData.ID/search_value/',/Pipeline/parameters/parameter[name='xnat_id']/values/unique/text(),'"&gt;', ' here. &lt;/a&gt; &lt;/p&gt;&lt;br&gt;', ' &lt;/p&gt;&lt;br&gt;', 'XNAT Team.')^
+                                        </value>
+                                </argument>
+                        </resource>
+                </step>
+        </steps>
+</Pipeline>
